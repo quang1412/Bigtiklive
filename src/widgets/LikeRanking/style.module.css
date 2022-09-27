@@ -1,0 +1,116 @@
+.dropdown-toggle::after {
+  display: none !important; 
+}
+.App{
+  padding:1rem;  
+}
+.App:not(:hover) .toolBar{
+  display:none;
+}
+.gameScreen{
+  text-align: center;
+}
+.main{
+  margin: 0 auto;
+  max-width: 1000px;
+  min-width: 400px;
+  position: relative;
+  /* padding-top: 58px; */ 
+  overflow: hidden;
+}
+.title{ 
+  /* margin: 0; */
+  text-align: left;
+  font-weight: 800;
+  color: var(--bs-secondary);
+  padding-left: 30px;
+}
+.toolBar{
+  color: var(--bs-secondary);
+  text-align: right;
+}
+.toolBar [role="button"]:hover{
+  color: var(--bs-primary)
+}
+.chartContainer{
+  position: relative;
+  border-radius: 30px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top;
+}
+.chart{
+  border-radius:30px;
+  min-height:300px;
+  position: relative;
+} 
+.recentEvent{
+  text-align: right;;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 14px;
+  color: #fff;
+  height: 100%;
+  width: 100%;
+  padding:20px;
+  z-index: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column-reverse;
+}
+.recentEvent > *:first-child,
+.recentEvent > *:nth-child(2){
+  opacity: 1;
+} 
+.recentEvent > *:nth-child(3),
+.recentEvent > *:nth-child(4){
+  opacity: .8;
+} 
+.recentEvent > *:nth-child(5),
+.recentEvent > *:nth-child(6){
+  opacity: .6;
+} 
+.recentEvent > *:nth-child(7),
+.recentEvent > *:nth-child(8){
+  opacity: .4;
+} 
+.recentEvent > *:nth-child(n+9){
+  opacity: .2;
+} 
+.topRankBar{
+  font-size: 5px;
+  height: 100%; 
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column; 
+  padding: 15px 0;
+  z-index: 1;
+  position:absolute; 
+  left: 15px;
+}
+.topRankBar .topUser{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 1px; 
+}
+.topUser .name{
+  text-align: right;
+  color:white; 
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: block;
+  width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+}
+.topUser .avatar{
+  width: 5em;
+  height: 5em;
+  margin-left: 5px;
+  border: 1px solid var(--bs-light);
+  border-radius:50%; 
+}

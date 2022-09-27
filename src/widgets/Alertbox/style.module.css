@@ -1,0 +1,107 @@
+body:not(:hover) .hoverBtn{
+  display:none
+}
+.alertboxLayer{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+} 
+.banner .alertImage {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.banner .alertImageWrap,
+.banner .alertTextWrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: table;
+  height: 100%;
+  width: 100%;
+}
+.banner .alertImage,
+.banner .alertText {
+  display: table-cell;
+  height: 100%;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.side .alertBox{
+  display: table;
+}
+.side .wrap{
+    display: table-row;
+}
+.side .alertImageWrap{
+  width: 30%;
+  height: 100%;
+  display: table-cell;
+}
+.side .alertImage{
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 100%;
+  height: 100%;
+}
+.side .alertTextWrap{
+  width: 70%;
+  height: 100%;
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+.side .alertText{
+  display: inline-block;
+}
+
+.above .wrap{
+    display: table;
+}
+.above .alertImage{
+    height: 100%;
+    display: table-cell;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.above .alertText{
+    display: table-cell;
+    text-align: center;
+}
+.above .alertImageWrap,
+.above .alertTextWrap{
+    display: table-row;
+}
+
+.alertboxLayer .alertBox {
+  height: 100%;
+  width: 100%; 
+}
+.alertboxLayer .alertText{
+  padding:20px;
+  position: relative;
+}
+.alertboxLayer .alertImage {
+  position: relative;
+}
+.alertboxLayer .wrap {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+.alertboxLayer .widget{
+  width:100%;
+  height:100%;
+}
+.alertboxLayer .animated-letter{
+  color: #32C3A6;
+}
+.alertboxLayer .alert-message > span > span {
+    display: inline-block;
+}
