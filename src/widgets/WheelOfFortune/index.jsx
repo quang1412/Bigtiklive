@@ -233,7 +233,7 @@ function WheelofFortune(props) {
       switch (name) {
         case 'chat':
           const { comment } = event;
-          valid = comment.includes(settings.widget_wof_commentKey);
+          valid = comment && comment.includes(settings.widget_wof_commentKey);
           break;
         case 'gift':
           const { giftType, giftName, repeatCount, repeatEnd } = event;

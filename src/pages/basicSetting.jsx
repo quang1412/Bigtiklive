@@ -6,7 +6,7 @@ import {
   MDBCol,
   MDBInputGroup
 } from 'mdb-react-ui-kit';
-import { login, logout, removeAllChannelUser } from '../modules/fireBase';
+import { login, logout } from '../modules/fireBase';
 
 function BasicSetting(props) {
   const { settings, handleSettingChange, updateSettings, setUserData } = props;
@@ -36,7 +36,7 @@ function BasicSetting(props) {
   }, [settings])
 
   function saveTiktokId() {
-    const usernameRegex = /^[a-zA-Z\_\.]+$/
+    const usernameRegex = /^[a-zA-Z\_\.\d]+$/
     const id = tiktokId.current.value.trim();
     if (!id) {
       return window.toast.warn('vui lòng điền đầy đủ ID Tiktok');

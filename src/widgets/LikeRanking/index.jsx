@@ -10,13 +10,108 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const LastEvents = props => {
   return (
     <div className={style.recentEvent}>
-      {props.events.map((event, index) => (
+      {props.events.map(({ nickname, uniqueId, likeCount }, index) => (
         <p key={index} className='mb-0 text-nowrap' style={{ color: props.color }}>
-          {`${event.nickname || event.uniqueId} ♥︎ x ${event.likeCount}`}
+          {`${nickname || uniqueId} ♥︎ x ${likeCount}`}
         </p>
       ))}
     </div>
   )
+}
+
+const BarChart = props => {
+  const { getValue, topRanking, viewerData, viewerPoint } = props;
+  return <Bar
+    plugins={[ChartDataLabels]}
+    options={{
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: "y",
+      layout: {
+        padding: {
+          top: 15,
+          right: 15,
+          bottom: 15,
+          left: 145,
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        datalabels: {
+          display: true,
+          font: {
+            size: 14,
+            weight: 500
+          },
+          padding: {
+            left: 10,
+            right: 10
+          },
+          color: (getValue('barColor') || '#3d3d3d'),
+          align: 'right',
+          anchor: 'start',
+        },
+        tooltip: {
+          displayColors: false
+        }
+      },
+      title: {
+        display: false,
+        text: ""
+      },
+      scales: {
+        x: {
+          display: false
+        },
+        y: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            display: false,
+            font: {
+              size: 14,
+              weight: 500
+            },
+            color: "#fff"
+          }
+        }
+      }
+    }}
+    data={{
+      labels: topRanking[0] ? topRanking.map(uniqueId => {
+        return (viewerData[uniqueId].nickname || uniqueId).substring(0, 15)
+      }) : ['top 1', 'top 2', 'top 3', 'top 4', 'top 5'],
+      datasets: [{
+        label: "Lượt like",
+        backgroundColor: (getValue('barBgColor') || '#e7a6e2'),
+        borderRadius: 5,
+        borderSkipped: false,
+        data: topRanking[0] ? topRanking.map(uniqueId => {
+          return viewerPoint[uniqueId]
+        }) : [0, 0, 0, 0, 0]
+      }]
+    }}
+  />
+}
+
+const TopperNameImage = props => {
+  const { topRanking, getValue, viewerData } = props;
+  return topRanking.map((uniqueId) => (
+    <div key={uniqueId} className={style.topUser}>
+      <span className={style.name} style={{ color: getValue('textColor') }}>{(viewerData[uniqueId].nickname || uniqueId).substring(0, 15)}</span>
+      <img
+        className={style.avatar}
+        src='/assets/images/default-avatar.webp'
+        data-url={viewerData[uniqueId].profilePictureUrl}
+        onLoad={window.imageOnLoad}
+        // src={window.imageUrlFixing(viewerData[uniqueId].profilePictureUrl)}
+        // onError={window.imageOnError}
+        alt="avatar" />
+    </div>
+  ))
 }
 
 const TopLike = props => {
@@ -104,97 +199,12 @@ const TopLike = props => {
         </div>
         <div
           className={style.chartContainer}
-          style={{ backgroundImage: sValue('bgImageEnabled') ? `url(${sValue('bgImageUrl')})` : 'url("/assets/images/default-like-rank-bg-jpg")' }}>
+          style={{ backgroundImage: sValue('bgImageEnabled') ? `url(${sValue('bgImageUrl') || '/assets/images/default-like-rank-bg-jpg'})` : 'unset' }}>
           <div className={style.topRankBar}>
-            {topRanking.map((uniqueId, index) => {
-              return (
-                <div key={index} className={style.topUser}>
-                  <span className={style.name} style={{ color: sValue('textColor') }}>{(viewerData[uniqueId].nickname || uniqueId).substring(0, 15)}</span>
-                  <img
-                    className={style.avatar}
-                    src='/assets/images/default-avatar.webp'
-                    data-url={viewerData[uniqueId].profilePictureUrl}
-                    onLoad={window.imageOnLoad}
-                    alt="avatar" />
-                </div>
-              )
-            })}
+            <TopperNameImage topRanking={topRanking} getValue={sValue} viewerData={viewerData} />
           </div>
           <div className={style.chart} style={{ backgroundColor: `rgb(0, 0, 0, ${sValue('bgOpacity') / 100})` }}>
-            <Bar
-              plugins={[ChartDataLabels]}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: "y",
-                layout: {
-                  padding: {
-                    top: 15,
-                    right: 15,
-                    bottom: 15,
-                    left: 145,
-                  }
-                },
-                plugins: {
-                  legend: {
-                    display: false
-                  },
-                  datalabels: {
-                    display: true,
-                    font: {
-                      size: 14,
-                      weight: 500
-                    },
-                    padding: {
-                      left: 10,
-                      right: 10
-                    },
-                    color: (sValue('barColor') || '#3d3d3d'),
-                    align: 'right',
-                    anchor: 'start',
-                  },
-                  tooltip: {
-                    displayColors: false
-                  }
-                },
-                title: {
-                  display: false,
-                  text: ""
-                },
-                scales: {
-                  x: {
-                    display: false
-                  },
-                  y: {
-                    grid: {
-                      display: false
-                    },
-                    ticks: {
-                      display: false,
-                      font: {
-                        size: 14,
-                        weight: 500
-                      },
-                      color: "#fff"
-                    }
-                  }
-                }
-              }}
-              data={{
-                labels: topRanking[0] ? topRanking.map(uniqueId => {
-                  return (viewerData[uniqueId].nickname || uniqueId).substring(0, 15)
-                }) : ['top 1', 'top 2', 'top 3', 'top 4', 'top 5'],
-                datasets: [{
-                  label: "Lượt like",
-                  backgroundColor: (sValue('barBgColor') || '#e7a6e2'),
-                  borderRadius: 5,
-                  borderSkipped: false,
-                  data: topRanking[0] ? topRanking.map(uniqueId => {
-                    return viewerPoint[uniqueId]
-                  }) : [0, 0, 0, 0, 0]
-                }]
-              }}
-            />
+            <BarChart getValue={sValue} topRanking={topRanking} viewerData={viewerData} viewerPoint={viewerPoint} />
           </div>
           <LastEvents events={lastEvents} color={sValue('textColor')} />
         </div>

@@ -22,6 +22,10 @@ Number.prototype.toMMSS = function () {
   return minutes + ' phút ' + seconds + ' giây ';
 }
 
+window.imageUrlFixing = url => {
+  return url.replace('p16-sign-va.tiktokcdn.com', 'p16-va.tiktokcdn.com');
+}
+
 window.imageOnError = e => {
   e.target.src = '/assets/images/default-avatar.webp';
   e.target.errored = true;
@@ -30,13 +34,14 @@ window.imageOnError = e => {
 window.imageOnLoad = e => {
   const target = e.target;
   const url = target.getAttribute('data-url');
-  target.removeAttribute('data-url');
   if (!url) return false;
+  target.removeAttribute('data-url');
+  const fixedUrl = window.imageUrlFixing(url);
   var tester = new Image();
   tester.onload = () => {
-    target.src = url;
+    target.src = fixedUrl;
   }
-  tester.src = url;
+  tester.src = fixedUrl;
 }
 
 window.wait = s => {

@@ -364,3 +364,10 @@ function App() {
 }
 
 export default memo(App);
+
+// git push command
+// git init
+// git commit -m 'Init'
+// git remote add origin https://github.com/quang1412/bigtiklive.git
+// git branch -M main
+// git push -u origin main

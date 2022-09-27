@@ -120,7 +120,7 @@ class TiktokLive {
     this.id = id;
     this.channelIds = [];
     this.tiktok = new WebcastPushConnection(id || 'norinpham_m4', {
-      clientParams: { "app_language": "vi-VN", "device_platform": "web" },
+      clientParams: { "app_language": "en-US", "device_platform": "web" },
       enableExtendedGiftInfo: true,
       processInitialData: false,
     });
