@@ -1,344 +1,365 @@
-require('dotenv').config();
-const { database, getChannelSettings } = require('./fireStore');
-const { WebcastPushConnection, signatureProvider } = require('tiktok-live-connector');
-const bodyParser = require('body-parser');
-const socket = require('socket.io');
-const express = require("express");
-const path = require("path");
-const app = express();
-let activeTiktokRoom = {};
+const { database, getChannelSettings } = require("./fireStore")
+const {
+  WebcastPushConnection,
+  signatureProvider,
+} = require("tiktok-live-connector")
+const bodyParser = require("body-parser")
+const socket = require("socket.io")
+const express = require("express")
+const path = require("path")
+const app = express()
+const { defaultSettings, fakeEvent } = require("./fakeData")
+const tiktokSocketPrefix = "tiktok-"
+let activeTiktokRoom = {}
 
-signatureProvider.config.extraParams.apiKey = "MzI2OGMwZDAxNjdhNzQ4ZjFhNDJmOTM0ZjliZmYyYWJhZmZiODUwMWQ4OTI3ZWVhNDRmYzY5";
+signatureProvider.config.extraParams.apiKey =
+  "MzI2OGMwZDAxNjdhNzQ4ZjFhNDJmOTM0ZjliZmYyYWJhZmZiODUwMWQ4OTI3ZWVhNDRmYzY5"
 
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(bodyParser.raw());
+app.use(express.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+app.use(bodyParser.raw())
 
 // Express port-switching logic
-let port;
-console.log("❇️ NODE_ENV is", process.env.NODE_ENV);
+let port
+console.log("❇️ NODE_ENV is", process.env.NODE_ENV)
 if (process.env.NODE_ENV === "production") {
-  port = process.env.PORT || 3000;
-  app.use(express.static(path.join(__dirname, "../build")));
-  app.get("*", (request, response) => {
-    response.sendFile(path.join(__dirname, "../build", "index.html"));
-  });
+  port = process.env.PORT || 3000
+  app.use(express.static(path.join(__dirname, "../build")))
+  app.get(/^((?!\/api\/).)*$/, (request, response) => {
+    response.sendFile(path.join(__dirname, "../build", "index.html"))
+  })
 } else {
-  port = 2096;
-  console.log("⚠️ Not seeing your changes as you develop?");
+  port = 3001
+  console.log("⚠️ Not seeing your changes as you develop?")
   console.log(
     "⚠️ Do you need to set 'start': 'npm run development' in package.json?"
-  );
+  )
 }
 // Start the listener!
 const server = app.listen(port, () => {
-  console.log("❇️ Express server is running on port", server.address().port);
-});
+  console.log("❇️ Express server is running on port", server.address().port)
+})
 
-const io = socket(server, { path: '/socket' });
+const io = socket(server, { path: "/socket" })
 
-
-
-app.get('/api/duplicatecheck', async (req, res) => {
-  const result = { error: false, error_msg: null, data: null };
-  const cid = req.query.cid;
-  if (!cid || cid === 'undefined') {
-    result.error = true;
-    result.error_msg = 'Dữ liệu đầu vào không hợp lệ';
+app.get("/api/channel-approve", async (req, res) => {
+  const result = { error: false, error_msg: null, data: null }
+  const cid = req.query.cid
+  if (!cid || cid === "undefined") {
+    result.error = true
+    result.error_msg = "Dữ liệu đầu vào không hợp lệ"
+  } else {
+    const channelIsExist = socketsCustomInfo.countChannelId(cid)
+    result.error = channelIsExist
+    result.error_msg = channelIsExist
+      ? "Phát hiện trùng lặp trang admin."
+      : null
   }
-  else {
-    const room = io.sockets.adapter.rooms.get(cid);
-    const roomSize = room ? room.size : 0;
-    result.error = roomSize > 1
-    result.error_msg = roomSize > 1 ? 'Phát hiện trùng lặp trang admin.' : null;
-  }
-  return res.status(200).send(result);
-});
+  return res.status(200).send(result)
+})
 
-app.post('/api/test-event', (req, res) => {
-  const cid = req.body.cid;
-  const event = req.body.event;
-  if (!cid || !event) return res.status(200).send('dữ liệu đầu vào không hợp lệ');
-  var data;
-  switch (event) {
-    case 'like':
-      // data = fakeLikeEvent();
-      break;
-    case 'gift':
-      // data = fakeLikeEvent();
-      break;
-    case 'follow':
-      // data = fakeLikeEvent();
-      break;
-    case 'share':
-      // data = fakeLikeEvent();
-      break;
-    default:
-  }
-  io.of('/').to(cid).emit(`tiktok_${event}`, data);
-  io.of('/widget').to(cid).emit(`tiktok_${event}`, data);
-  return res.status(200).send('OK');
-});
-
-app.get('/api/resetlikeranking', (req, res) => {
-  const cid = req.query.cid;
-  if (!cid) return;
-  io.of('/widget').to(cid).emit('likerankreset');
-  return res.status(200).send('ok');
-});
-
-app.get('/api/ggtts', (req, res) => {
-  let text = req.query.text || 'xin chào';
-  let lang = req.query.lang || 'vi';
-  let slow = (req.query.slow || false) == 'true';
+app.get("/api/ggtts", (req, res) => {
+  let text = req.query.text || "xin chào"
+  let lang = req.query.lang || "vi"
+  let slow = (req.query.slow || false) == "true"
   // speechBase64(text, lang, slow, base64 => {
   //   base64 ? res.status(200).send('data:audio/wav;base64,' + base64) : res.status(500).send('fail')
   // })
-});
+})
 
-app.get('/api', (req, res) => {
-  res.status(200).send('<h5>Bigman marketing - tiktool API</h5>')
-});
-
+app.get("*", (req, res) => {
+  res.redirect("/")
+})
 
 function makeid(length) {
-  var result = '';
-  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var charactersLength = characters.length;
+  var result = ""
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+  var charactersLength = characters.length
   for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() *
-      charactersLength));
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
   }
-  return result;
+  return result
 }
-
-
+function currentTimeStamp() {
+  return new Date().getTime()
+}
 
 class TiktokLive {
   constructor(id) {
-    this.id = id;
-    this.channelIds = [];
-    this.tiktok = new WebcastPushConnection(id || 'norinpham_m4', {
-      clientParams: { "app_language": "en-US", "device_platform": "web" },
+    this.id = id
+    this.channelIds = []
+    this.tiktok = new WebcastPushConnection(id || "norinpham_m4", {
+      clientParams: { app_language: "en-US", device_platform: "web" },
       enableExtendedGiftInfo: true,
       processInitialData: false,
-    });
-    this.roomInfo = { isConnected: false };
-    this.listening();
+      requestHeaders: {},
+      websocketHeaders: {},
+    })
+    // this.roomInfo = {
+    //   isConnected: false,
+    //   roomInfo: {
+    //     owner: {
+    //       display_id: this.id,
+    //       avatar_thumb: {
+    //         url_list: ["/assets/images/default-avatar.webp"],
+    //       },
+    //     },
+    //     stream_url: {
+    //       flv_pull_url: {
+    //         FULL_HD1: "#",
+    //         HD1: "#",
+    //         SD1: "#",
+    //         SD2: "#",
+    //       },
+    //     },
+    //   },
+    // }
+    this.roomInfo = {
+      isConnected: false,
+      roomInfo: {
+        owner: {
+          display_id: this.id,
+        },
+      },
+    }
+    this.listening()
 
-    activeTiktokRoom[id] = this;
+    activeTiktokRoom[id] = this
 
-    console.log('CREATE NEW TIKTOK ROOM', this.id);
-    console.log('active Tiktok Room', Object.keys(activeTiktokRoom))
+    console.log("CREATE NEW TIKTOK ROOM", this.id)
+    console.log("active Tiktok Room", Object.keys(activeTiktokRoom))
   }
   updateChannelIds() {
-    this.channelIds = socketsCustomInfo.getChannelByTiktokId(this.id);
+    this.channelIds = socketsCustomInfo.getChannelByTiktokId(this.id)
   }
   emit(messenger, data = true) {
-    io.of('/').to(`tiktok-${this.id}`).emit(messenger, data);
-    this.channelIds.map(id => io.of('/widget').to(id).emit(messenger, data));
+    io.of("/").to(`tiktok-${this.id}`).emit(messenger, data)
+    this.channelIds.map((id) => io.of("/widget").to(id).emit(messenger, data))
   }
   startConnect() {
-    clearTimeout(this.disconnectDelay);
-    this.emit('tiktok_roomInfo', this.roomInfo);
-    if (this.roomInfo.isConnected) return;
+    // return
 
-    this.roomInfo.isConnected = true;
-    this.tiktok.connect()
-      .then(roomInfo => {
-        this.roomInfo = roomInfo;
-        this.emit('tiktok_connected', roomInfo);
-        console.log(this.id, '✅ Connected :)');
+    clearTimeout(this.disconnectDelay)
+    this.emit("tiktok-roomInfo", this.roomInfo)
+    if (this.roomInfo.isConnected) return
+
+    this.roomInfo.isConnected = true
+    this.tiktok
+      .connect()
+      .then((roomInfo) => {
+        this.roomInfo = roomInfo
+        console.log("[tiktok] ✅ ", this.id, "connected :)")
       })
-      .catch(err => {
-        this.emit('tiktok_connectFailed', `${err}`);
-        this.roomInfo.isConnected = false;
-        this.emit('tiktok_roomInfo', this.roomInfo);
-        console.log(`Tiktok connect failed ${err}`);
+      .catch((err) => {
+        this.emit(
+          "tiktok-connectFailed",
+          `Kết nối tới livestream ${this.id} thất bại - (${err})`
+        )
+        this.roomInfo.isConnected = false
+        console.log("[tiktok] ❌ ", this.id, "connect failed :(" + err)
+      })
+      .finally(() => {
+        this.emit("tiktok-roomInfo", this.roomInfo)
       })
   }
   stopConnect() {
     this.disconnectDelay = setTimeout(() => {
-      this.tiktok.disconnect();
-      delete activeTiktokRoom[this.id];
+      this.tiktok.disconnect()
+      delete activeTiktokRoom[this.id]
     }, 20000)
   }
   listening() {
-    this.tiktok.on('disconnected', () => {
-      this.roomInfo.isConnected = false;
-      this.emit('tiktok_disconnected');
-      console.log(this.id, '❌ Disconnected :(');
+    this.tiktok.on("disconnected", () => {
+      this.roomInfo.isConnected = false
+      this.emit("tiktok-disconnected")
+      console.log("[tiktok] ❌", this.id, "disconnected")
     })
 
-    this.tiktok.on('chat', data => {
+    this.tiktok.on("chat", (data) => {
       // console.log(this.id, `${data.uniqueId} writes: ${data.comment}`);
-      this.emit('tiktok_chat', { ...data, name: 'chat', id: makeid(10) });
+      this.emit("tiktok-chat", { ...data, name: "chat", id: makeid(10) })
     })
 
-    this.tiktok.on('gift', data => {
-      this.emit('tiktok_gift', { ...data, name: 'gift', id: makeid(10) });
+    this.tiktok.on("gift", (data) => {
+      this.emit("tiktok-gift", { ...data, name: "gift", id: makeid(10) })
     })
 
-    this.tiktok.on('like', data => {
+    this.tiktok.on("like", (data) => {
       // console.log(this.id, `${data.uniqueId} sent ${data.likeCount} likes, total likes: ${data.totalLikeCount}`);
-      this.emit('tiktok_like', { ...data, name: 'like', id: makeid(10) });
+      this.emit("tiktok-like", { ...data, name: "like", id: makeid(10) })
     })
 
-    this.tiktok.on('follow', data => {
+    this.tiktok.on("follow", (data) => {
       // console.log(this.id, 'social event data:', data);
-      this.emit('tiktok_follow', { ...data, name: 'follow', id: makeid(10) });
+      this.emit("tiktok-follow", { ...data, name: "follow", id: makeid(10) })
     })
 
-    this.tiktok.on('share', data => {
+    this.tiktok.on("share", (data) => {
       // console.log(this.id, 'social event data:', data);
-      this.emit('tiktok_share', { ...data, name: 'share', id: makeid(10) });
+      this.emit("tiktok-share", { ...data, name: "share", id: makeid(10) })
     })
 
-    this.tiktok.on('roomUser', data => {
-      this.emit('tiktok_roomUser', { ...data, name: 'roomUser', id: makeid(10) });
+    this.tiktok.on("roomUser", (data) => {
+      this.emit("tiktok-roomUser", {
+        ...data,
+        name: "roomUser",
+        id: makeid(10),
+      })
     })
   }
 }
-
-
 
 const socketsCustomInfo = {
   data: {},
   create: (socketId, channelId) => {
-    this.data = { ...this.data, [socketId]: { 'channelId': channelId, 'tiktokId': null } };
+    this.data = {
+      ...this.data,
+      [socketId]: {
+        channelId: channelId,
+        tiktokId: null,
+        settings: {},
+      },
+    }
   },
-  destroy: socketId => {
+  destroy: (socketId) => {
     delete this.data[socketId]
   },
   set: (socketId, props) => {
-    const current = this.data[socketId] || {};
+    const current = this.data[socketId] || {}
     this.data[socketId] = { ...current, ...props }
   },
-  getChannelByTiktokId: tiktokId => {
-    const subscribers = [];
-    Object.keys(this.data).forEach(socketId => {
-      const info = this.data[socketId];
-      info.tiktokId === tiktokId && subscribers.push(info.channelId);
+  getChannelByTiktokId: (id = null) => {
+    const subscribers = []
+    Object.keys(this.data).forEach((socketId) => {
+      const { channelId, tiktokId } = this.data[socketId]
+      tiktokId === id && subscribers.push(channelId)
     })
-    return [...new Set(subscribers)]; //unique filter
-  }
+    return [...new Set(subscribers)] //unique filter
+  },
+  countChannelId: (cid = null) => {
+    let count = 0
+    for (var key in this.data) {
+      const { channelId } = this.data[key]
+      channelId === cid && count++
+    }
+    return count
+  },
+  getChannelSettings: (cid = null) => {
+    let response = defaultSettings()
+    for (var key in this.data) {
+      const { channelId, settings } = this.data[key]
+      if (channelId === cid) response = settings
+    }
+    return response
+  },
 }
 
-io.of('/').on('connection', async socket => {
-  const cid = socket.handshake.query.cid;
-  if (!cid) return socket.disconnect();
+/// WIDGET SOCKET CONNECT /////////////////
+io.of("/widget").on("connection", async (socket) => {
+  const cid = socket.handshake.query.cid
 
-  var currentTiktokID = null;
+  if (!cid) return socket.disconnect()
 
-  socketsCustomInfo.create(socket.id, cid);
-  socket.join(cid);
+  console.log("🏞 A WIDGET WAS CONNECTED", cid)
+  socket.join(cid)
 
-  const doc = database.collection('channelSettings').doc(cid);
-  const offSettingsSnapshot = doc.onSnapshot(async docSnapshot => {
-    const settings = docSnapshot.data();
-    io.of('/widget').to(cid).emit('updateSetting', settings);
-
-    const newTiktokID = settings.basic_tiktokid;
-
-    socketsCustomInfo.set(socket.id, { 'tiktokId': newTiktokID })
-
-    socket.leave('tiktok-' + currentTiktokID);
-    socket.join('tiktok-' + newTiktokID);
-    currentTiktokID = newTiktokID;
-  });
-
-  socket.on('disconnect', _ => {
-    offSettingsSnapshot();
-    socketsCustomInfo.destroy(socket.id)
-  });
-
-  console.log('NEW CHANNEL IS CONNECT', socket.id, cid);
-});
-
-
-
-io.of("/").adapter.on("create-room", (room) => {
-  const prefix = 'tiktok-';
-  if (room.includes(prefix)) {
-    const tiktokId = room.replace(prefix, '');
-
-    const tiktokRoom = activeTiktokRoom[tiktokId] || new TiktokLive(tiktokId);
-    tiktokRoom.updateChannelIds();
-    tiktokRoom.startConnect();
-    activeTiktokRoom[tiktokId] = tiktokRoom;
-  }
-});
-
-
-
-io.of("/").adapter.on("join-room", (room, id) => {
-  const prefix = 'tiktok-';
-  if (room.includes(prefix)) {
-    const tiktokId = room.replace(prefix, '');
-
-    const tiktokRoom = activeTiktokRoom[tiktokId];
-    tiktokRoom.updateChannelIds();
-    tiktokRoom.startConnect();
-  }
-});
-
-
-
-io.of("/").adapter.on("leave-room", (room, id) => {
-  const prefix = 'tiktok-';
-  if (room.includes(prefix)) {
-    const tiktokId = room.replace(prefix, '');
-
-    const tiktokRoom = activeTiktokRoom[tiktokId];
-
-    if (!tiktokRoom) return;
-
-    tiktokRoom.updateChannelIds();
-  }
-});
-
-
-
-io.of("/").adapter.on("delete-room", (room) => {
-  const prefix = 'tiktok-';
-  if (room.includes(prefix)) {
-    const tiktokId = room.replace(prefix, '');
-
-    const tiktokRoom = activeTiktokRoom[tiktokId];
-    tiktokRoom.stopConnect();
-  }
-});
-
-
-
-io.of('/widget').on('connection', async socket => {
-
-  const cid = socket.handshake.query.cid;
-
-  if (!cid) return socket.disconnect();
-
-  console.log('🏞 A widget connected - uid:', cid);
-  socket.join(cid);
-
-  try {
-    const settings = await getChannelSettings(cid);
-    socket.emit('updateSetting', settings);
-  } catch (err) { }
-
-  socket.on('getSettings', () => {
-    socket.emit('updateSetting', settings);
-  })
+  let settings = socketsCustomInfo.getChannelSettings(cid)
+  socket.emit("updateSetting", settings)
 
   socket.on("disconnect", (reason) => {
-    console.log('Web socket disconnected - id:', cid);
-    console.log(reason);
-  });
-});
+    console.log("🏞 A WIDGET WAS DISCONNECTED", cid)
+    console.log(reason)
+  })
+})
 
+/// CHANNEL SOCKET CONNECT /////////////////
+io.of("/").on("connection", async (socket) => {
+  const cid = socket.handshake.query.cid
+  if (!cid) return socket.disconnect()
 
+  let currentTiktokID = null
 
+  socketsCustomInfo.create(socket.id, cid)
+  socket.join(cid)
 
+  socket.on("updateSetting", (newSettings = {}) => {
+    io.of("/widget").to(cid).emit("updateSetting", newSettings)
+    const newTiktokID = newSettings.basic_tiktokid
+
+    socketsCustomInfo.set(socket.id, {
+      tiktokId: newTiktokID,
+      settings: newSettings,
+    })
+
+    // const isPro =
+    //   (newSettings.basic_proexpirationdate || 0) - currentTimeStamp() >= 0
+
+    if (newTiktokID !== currentTiktokID) {
+      socket.leave(tiktokSocketPrefix + currentTiktokID)
+      socket.join(tiktokSocketPrefix + newTiktokID)
+      currentTiktokID = newTiktokID
+    }
+  })
+
+  const randomEventName = () =>
+    ["like", "gift", "follow", "share", "chat"][Math.floor(Math.random() * 5)]
+  socket.on("fakeEvent", (name = randomEventName()) => {
+    const event = fakeEvent(name)
+    io.of("/")
+      .to(cid)
+      .emit("tiktok-" + name, event)
+    io.of("/widget")
+      .to(cid)
+      .emit("tiktok-" + name, event)
+  })
+
+  socket.on("widget-control", (action = "reset-likerank") => {
+    io.of("/widget").to(cid).emit("widget-control", action)
+  })
+
+  console.log("🔰 A CHANNEL WAS CONNECTED", cid)
+
+  socket.on("disconnect", (_) => {
+    console.log("🔰 A CHANNEL WAS DISCONNECTED", cid)
+    socketsCustomInfo.destroy(socket.id)
+  })
+})
+
+io.of("/").adapter.on("create-room", (room) => {
+  if (room.includes(tiktokSocketPrefix)) {
+    const tiktokId = room.replace(tiktokSocketPrefix, "")
+    const tiktokRoom = activeTiktokRoom[tiktokId] || new TiktokLive(tiktokId)
+    // tiktokRoom.updateChannelIds()
+    // tiktokRoom.startConnect()
+    activeTiktokRoom[tiktokId] = tiktokRoom
+  }
+})
+
+io.of("/").adapter.on("join-room", (room, id) => {
+  if (room.includes(tiktokSocketPrefix)) {
+    const tiktokId = room.replace(tiktokSocketPrefix, "")
+    const tiktokRoom = activeTiktokRoom[tiktokId]
+    tiktokRoom && (tiktokRoom.updateChannelIds(), tiktokRoom.startConnect())
+  }
+})
+
+io.of("/").adapter.on("leave-room", (room, id) => {
+  if (room.includes(tiktokSocketPrefix)) {
+    const tiktokId = room.replace(tiktokSocketPrefix, "")
+    const tiktokRoom = activeTiktokRoom[tiktokId]
+    tiktokRoom && tiktokRoom.updateChannelIds()
+  }
+})
+
+io.of("/").adapter.on("delete-room", (room) => {
+  if (room.includes(tiktokSocketPrefix)) {
+    const tiktokId = room.replace(tiktokSocketPrefix, "")
+    const tiktokRoom = activeTiktokRoom[tiktokId]
+    tiktokRoom && tiktokRoom.stopConnect()
+  }
+})
 
 // app.get('/api/tts/word/:word', async (req, res) => {
 //   const word = req.params.word;
@@ -358,7 +379,7 @@ io.of('/widget').on('connection', async socket => {
 //   synthesizer.speakSsmlAsync(
 //     `
 //     <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
-//        xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="vi-VN"> 
+//        xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="vi-VN">
 //     <voice name="vi-VN-HoaiMyNeural">
 //             ${word}
 //     </voice>
@@ -373,8 +394,6 @@ io.of('/widget').on('connection', async socket => {
 //     }
 //   );
 // });
-
-
 
 // function speechBase64(text, lang, slow, callback) {
 //   getAudioBase64(text, {
@@ -392,17 +411,16 @@ io.of('/widget').on('connection', async socket => {
 //     })
 // }
 
-
 // PWAs want HTTPS!
 // function checkHttps(request, response, next) {
 //   // Check the protocol — if http, redirect to https.
 //   if (request.get("X-Forwarded-Proto").indexOf("https") != -1) {
-//     return next(); 
+//     return next();
 //   } else {
-//     response.redirect("https://" + request.hostname + request.url); 
-//   } 
+//     response.redirect("https://" + request.hostname + request.url);
+//   }
 // }
-// app.all("*", checkHttps); 
+// app.all("*", checkHttps);
 
 // class Channel {
 //   constructor(cid) {

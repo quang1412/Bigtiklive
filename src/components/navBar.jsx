@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo } from "react"
 import {
   MDBContainer,
   MDBNavbar,
@@ -8,80 +8,159 @@ import {
   MDBNavbarNav,
   MDBNavbarItem,
   MDBNavbarLink,
-  MDBDropdown, MDBDropdownMenu, MDBDropdownToggle, MDBDropdownItem,
+  MDBDropdown,
+  MDBDropdownMenu,
+  MDBDropdownToggle,
+  MDBDropdownItem,
   MDBCollapse,
-} from 'mdb-react-ui-kit';
+} from "mdb-react-ui-kit"
 
-const avatar = '/assets/images/default-avatar.webp'
-
-const StatusAvatar = props => {
-  const { info, className } = props;
-  const { isConnected, roomInfo } = info;
+const StatusAvatar = (props) => {
+  const { info, className } = props
+  const { isConnected, roomInfo } = info
+  const avatarUrl =
+    roomInfo?.owner?.avatar_thumb?.url_list[0] || window.defaultAvatar
+  const display_id = roomInfo?.owner?.display_id || "tiktok"
+  const flv_pull_url = roomInfo?.stream_url?.flv_pull_url || {}
+  const stream_url =
+    flv_pull_url.FULL_HD1 ||
+    flv_pull_url.HD1 ||
+    flv_pull_url.SD1 ||
+    flv_pull_url.SD2 ||
+    "#"
   return (
-    <div className={'d-inline-block p-1 position-relative ' + className} role="button">
-      <MDBIcon fas icon="circle" className='position-absolute top-0 end-0' size="xs" color={isConnected ? 'success' : 'muted'} style={{ 'zIndex': '4' }} />
-      <MDBDropdown className='Avatar-dropdown'>
-        <MDBDropdownToggle tag='div' className='' role='button'>
-          <img
-            src={roomInfo ? roomInfo.owner.avatar_thumb.url_list[0] : avatar}
-            className='rounded-circle'
-            alt='Livestream cover' width="30" height="30" onError={window.imageOnError}
-          />
-        </MDBDropdownToggle>
-        {roomInfo &&
-          <MDBDropdownMenu>
-            <MDBDropdownItem link href={`https://tiktok.com/@${roomInfo.owner.display_id}`}>
-              {`Xem hồ sơ ${roomInfo.owner.display_id}`}
-            </MDBDropdownItem>
-            <MDBDropdownItem link href={`https://tiktok.com/@${roomInfo.owner.display_id}/live`} target="_blank">
-              Xem livestream
-            </MDBDropdownItem>
-          </MDBDropdownMenu>
-        }
-      </MDBDropdown>
-    </div>
+    <MDBDropdown
+      className={className}
+      options={{
+        modifiers: [
+          {
+            name: "offset",
+            options: {
+              offset: [0, 3],
+            },
+          },
+        ],
+      }}
+    >
+      <MDBDropdownToggle
+        tag="section"
+        color="light"
+        className="p-1 rounded-5 d-flex align-items-center"
+        style={{ backgroundColor: "var(--mdb-gray-800)" }}
+        role="button"
+      >
+        <img
+          src={window.imageUrlFixing(avatarUrl)}
+          onError={window.imageOnError}
+          className={
+            "rounded-5 border border-2 " +
+            (isConnected ? "border-info" : "border-muted")
+          }
+          width="30"
+          height="30"
+          alt="avatar"
+        />
+        <small className="text-nowrap text-start lh-1 mx-2 d-none d-md-flex flex-column">
+          <span>{display_id}</span>
+          <small className={isConnected ? "text-info" : "text-muted"}>
+            {isConnected ? "connected" : "disconnected"}
+          </small>
+        </small>
+      </MDBDropdownToggle>
+      <MDBDropdownMenu dark>
+        <MDBDropdownItem className="p-1" />
+        <MDBDropdownItem link href={"https://tiktok.com/@" + display_id}>
+          Xem trang tiktok
+        </MDBDropdownItem>
+        <MDBDropdownItem
+          link
+          className={!isConnected && "d-none"}
+          href={"https://tiktok.com/@" + display_id + "/live"}
+        >
+          Xem livestream
+        </MDBDropdownItem>
+        <MDBDropdownItem
+          link
+          className={!isConnected && "d-none"}
+          href={stream_url}
+        >
+          Tải xuống
+        </MDBDropdownItem>
+        <MDBDropdownItem className="p-1" />
+      </MDBDropdownMenu>
+    </MDBDropdown>
   )
 }
 
 function Navbar(props) {
-  const { roomInfo, pageName } = props;
-  const [_showBasic, setShowBasic] = useState(false);
+  const { roomInfo, pageName } = props
+  const [isNavShow, setNavShow] = useState(false)
 
-  return <MDBNavbar expand='md' dark bgColor='dark' className='position-fixed top-0 w-100' style={{ zIndex: '3' }}>
-    <MDBContainer>
-      <MDBNavbarBrand href='#' className="fw-bold text-light">Bigtik</MDBNavbarBrand>
-      <StatusAvatar info={roomInfo} className="d-md-none ms-auto" />
-      <MDBNavbarToggler
-        aria-controls='navbarSupportedContent'
-        aria-expanded='false'
-        aria-label='Toggle navigation'
-        onClick={() => setShowBasic(!_showBasic)}
-      >
-        <MDBIcon icon='bars' fas className='ms-0' />
-      </MDBNavbarToggler>
-      <MDBCollapse navbar show={_showBasic}>
-        <MDBNavbarNav className='mr-auto mb-2 mb-lg-0 text-start'>
-          <MDBNavbarItem>
-            <MDBNavbarLink className={pageName === 'home' && 'active'} href='#home'>
-              Giới thiệu
-            </MDBNavbarLink>
-          </MDBNavbarItem>
-          <MDBNavbarItem>
-            <MDBNavbarLink className={pageName === 'setup' && 'active'} href='#setup'>Cài đặt</MDBNavbarLink>
-          </MDBNavbarItem>
-          <MDBNavbarItem>
-            <MDBNavbarLink className={pageName === 'widgets' && 'active'} href='#widgets'>Widgets</MDBNavbarLink>
-          </MDBNavbarItem>
-          <MDBNavbarItem>
-            <MDBNavbarLink className={pageName === 'user-point' && 'active'} href='#user-point'>Thành viên</MDBNavbarLink>
-          </MDBNavbarItem>
-          <MDBNavbarItem>
-
-          </MDBNavbarItem>
-        </MDBNavbarNav>
-        <StatusAvatar info={roomInfo} className="d-none d-md-inline-block" />
-      </MDBCollapse>
-    </MDBContainer>
-  </MDBNavbar>
+  return (
+    <MDBNavbar
+      dark
+      expand="md"
+      bgColor="dark"
+      style={{ zIndex: "1001" }}
+      onMouseOut={() => setNavShow(false)}
+      className="position-fixed top-0 w-100"
+    >
+      <MDBContainer>
+        <MDBNavbarBrand className="mb-2" href="#">
+          Bigtik
+        </MDBNavbarBrand>
+        <div className="d-flex align-items-center">
+          <div className="d-inline-block d-md-none me-0">
+            <StatusAvatar info={roomInfo} className="d-md-none ms-auto" />
+          </div>
+          <MDBNavbarToggler
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+            onClick={() => setNavShow(!isNavShow)}
+          >
+            <MDBIcon icon="bars" fas />
+          </MDBNavbarToggler>
+        </div>
+        <MDBCollapse navbar show={isNavShow}>
+          <MDBNavbarNav className="mr-auto mb-2 mb-lg-0 text-start">
+            <MDBNavbarItem>
+              <MDBNavbarLink
+                className={pageName === "home" && "active"}
+                href="#home"
+              >
+                Giới thiệu
+              </MDBNavbarLink>
+            </MDBNavbarItem>
+            <MDBNavbarItem>
+              <MDBNavbarLink
+                className={pageName === "setup" && "active"}
+                href="#setup"
+              >
+                Cài đặt
+              </MDBNavbarLink>
+            </MDBNavbarItem>
+            <MDBNavbarItem>
+              <MDBNavbarLink
+                className={pageName === "widgets" && "active"}
+                href="#widgets"
+              >
+                Widgets
+              </MDBNavbarLink>
+            </MDBNavbarItem>
+            <MDBNavbarItem>
+              <MDBNavbarLink
+                className={pageName === "user-point" && "active"}
+                href="#user-point"
+              >
+                Thành viên
+              </MDBNavbarLink>
+            </MDBNavbarItem>
+          </MDBNavbarNav>
+          <StatusAvatar info={roomInfo} className="d-none d-md-inline-block" />
+        </MDBCollapse>
+      </MDBContainer>
+    </MDBNavbar>
+  )
 }
-export default memo(Navbar);
+export default memo(Navbar)

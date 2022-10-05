@@ -1,5 +1,12 @@
-:root{
+:root {
   --mdb-muted: #6c757d;
+  --toastify-color-light: var(--mdb-light);
+  --toastify-color-dark: var(--mdb-dark);
+  --toastify-color-info: var(--mdb-info);
+  --toastify-color-success: var(--mdb-success);
+  --toastify-color-warning: var(--mdb-warning);
+  --toastify-color-error: var(--mdb-danger);
+  --toastify-color-transparent: rgba(255, 255, 255, 0.7);
 }
 .App {
   text-align: center;
@@ -46,27 +53,36 @@ body {
   color: white;
 }
 
-input[type="number"], input[type="text"], select{
+input[type="number"],
+input[type="text"],
+select {
   background-color: var(--mdb-dark) !important;
 }
 
-input[type="number"], input[type="text"], .input-group-text, select{
+input[type="number"],
+input[type="text"],
+.input-group-text,
+select {
   color: var(--mdb-light) !important;
   border-color: var(--mdb-muted) !important;
 }
 
 .navbar-light .navbar-nav .nav-link.active {
-  color:var(--mdb-black)
+  color: var(--mdb-black);
 }
 
-.Avatar-dropdown .dropdown-toggle::after{
+.Avatar-dropdown .dropdown-toggle::after {
   display: none;
 }
 
-.text-muted{
+.text-muted {
   color: var(--mdb-muted) !important;
 }
 
-.border-muted{
+.border-muted {
   border-color: var(--mdb-muted) !important;
+}
+
+.dropdown-toggle::after {
+  display: none;
 }
