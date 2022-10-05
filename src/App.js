@@ -313,7 +313,7 @@ function App() {
 
   useEffect(() => {
     // if (_loadingText || _settings === {}) return;
-    if (!authDataRef.current) return
+    if (!window.socketio || !authDataRef.current) return
     clearTimeout(window.settingSaveDelay)
     window.settingSaveDelay = setTimeout(() => {
       saveChannelSetting(window.cid, _settings)
@@ -360,7 +360,6 @@ function App() {
         .then(async (authData) => {
           // Đã login
           if (authData) {
-            authDataRef.current = authData
             const cid = authData.uid
             window.cid = cid
 
@@ -386,6 +385,7 @@ function App() {
             window.socketio = await createSocketConnect(cid)
 
             await window.wait(1.5)
+            authDataRef.current = authData
             setLoadingText(null)
           }
           // chưa login
@@ -411,7 +411,7 @@ function App() {
 
           if (event.origin !== "https://www.tiktok.com") return
           else {
-            console.log(event.data.binary)
+            console.log(event.data)
           }
 
           // event.source is popup

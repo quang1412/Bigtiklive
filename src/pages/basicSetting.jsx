@@ -341,6 +341,17 @@ function BasicSetting(props) {
               >
                 Đăng xuất
               </MDBBtn>
+              <MDBBtn
+                onClick={() =>
+                  window.open(
+                    "https://www.tiktok.com/@dongnguyenchat/live#bigtikbridge"
+                  )
+                }
+                color="info"
+                className="px-5 text-nowrap border border-1"
+              >
+                Open
+              </MDBBtn>
             </div>
           </div>
         </>
