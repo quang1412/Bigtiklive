@@ -360,12 +360,17 @@ function App() {
         .then(async (authData) => {
           // Đã login
           if (authData) {
+            authDataRef.current = authData
             const cid = authData.uid
             window.cid = cid
 
             await window.wait(1.5)
             setLoadingText("Kiểm tra trùng lặp admin")
             await channelDuplicateCheck(cid)
+
+            await window.wait(1.5)
+            setLoadingText("Kết nối websocket")
+            window.socketio = await createSocketConnect(cid)
 
             await window.wait(1.5)
             setLoadingText("Tải thông tin tài khoản")
@@ -381,11 +386,6 @@ function App() {
             })
 
             await window.wait(1.5)
-            setLoadingText("Kết nối websocket")
-            window.socketio = await createSocketConnect(cid)
-
-            await window.wait(1.5)
-            authDataRef.current = authData
             setLoadingText(null)
           }
           // chưa login
