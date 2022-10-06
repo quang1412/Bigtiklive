@@ -353,12 +353,11 @@ function App() {
 
             await window.wait(1.5)
             setLoadingText("Kiểm tra trùng lặp admin")
-            !window.socketio && (await channelDuplicateCheck(cid))
+            await channelDuplicateCheck(cid)
 
             await window.wait(1.5)
             setLoadingText("Kết nối websocket")
-            window.socketio =
-              window.socketio || (await createSocketConnect(cid))
+            window.socketio = await createSocketConnect(cid)
 
             await window.wait(1.5)
             setLoadingText("Tải thông tin tài khoản")
@@ -390,11 +389,8 @@ function App() {
         })
     }
 
-    // getStart()
-    return () => {
-      // window.socketio && window.socketio.disconnect()
-      getStart()
-    }
+    window.start = setTimeout(getStart, 200)
+    return () => window.clearTimeout(window.start)
   }, []) // Khởi động
 
   return _loadingText ? (
