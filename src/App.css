@@ -8,6 +8,12 @@
   --toastify-color-error: var(--mdb-danger);
   --toastify-color-transparent: rgba(255, 255, 255, 0.7);
 }
+body {
+  max-width: 1080px;
+  min-width: 540px;
+  margin: 0 auto;
+}
+
 .App {
   text-align: center;
 }

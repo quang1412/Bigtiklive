@@ -22,8 +22,7 @@ function Navbar(props) {
       expand="md"
       bgColor="dark"
       style={{ zIndex: "1001" }}
-      onMouseOut={() => setNavShow(false)}
-      className="position-fixed top-0 w-100"
+      className="position-fixed top-0 start-0 w-100"
     >
       <MDBContainer>
         <MDBNavbarBrand className="mb-2" href="#">

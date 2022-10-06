@@ -79,7 +79,8 @@ export default function Widget() {
         setLoadingText(`${error}`)
       }
     }
-    return () => getStart()
+    getStart()
+    // return () => getStart()
   }, [])
 
   return (

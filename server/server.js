@@ -87,7 +87,7 @@ function currentTimeStamp() {
 }
 function socketBroadcastRoomList() {
   const data = tiktokRoomsStorage.rooms.map((room) => room.info)
-  io.of("/").emit("tiktok-roomList", data)
+  io.of("/").emit("broadcast-roomList", data)
 }
 
 const tiktokRoomsStorage = {
@@ -213,9 +213,9 @@ class TiktokLive {
   listening() {
     this.tiktok.on("disconnected", () => {
       this.info.isConnected = false
-      this.emit("tiktok-disconnected")
-      socketBroadcastRoomList()
       console.log("[tiktok] ❌", this.id, "disconnected")
+      this.emit("tiktok-roomInfo", this.info)
+      socketBroadcastRoomList()
     })
 
     this.tiktok.on("chat", (data) => {
@@ -341,6 +341,8 @@ io.of("/").adapter.on("join-room", (room, id) => {
     // const tiktokRoom = activeTiktokRoom[tiktokId]
     const tiktokRoom = tiktokRoomsStorage.getRoomById(tiktokId)
     tiktokRoom && (tiktokRoom.updateChannelIds(), tiktokRoom.startConnect())
+
+    socketBroadcastRoomList()
   }
 })
 

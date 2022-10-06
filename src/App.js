@@ -9,6 +9,7 @@ import { getChannelSettings, saveChannelSetting } from "./modules/fireBase.js"
 import { defaultSettings } from "./modules/fakeData"
 import StartScreen from "./components/loadingScreen"
 import Navbar from "./components/navBar"
+// import EventLog from "./components/eventLog"
 
 const GetStarted = lazy(() => import("./pages/getStarted"))
 const BasicSetting = lazy(() => import("./pages/basicSetting"))
@@ -65,24 +66,6 @@ function channelDuplicateCheck(cid) {
         return reject(`${err}`)
       })
   })
-}
-
-const EventLog = ({ event }) => {
-  const limit = 10
-  const [events, setEvents] = useState([])
-
-  useEffect(() => {
-    setEvents((current) => [...current.slice(-limit), event])
-  }, [event])
-  return (
-    <div className="d-flex flex-column-reverse">
-      {events.map((e, index) => (
-        <p key={index} className="mb-0">
-          {e.createTime} {e.name}
-        </p>
-      ))}
-    </div>
-  )
 }
 
 function App() {
@@ -152,32 +135,30 @@ function App() {
 
       socket.on("tiktok-like", (event) => {
         setLastEvent(event)
-        console.log(`👍 ${event.uniqueId} send ${event.likeCount} like`)
+        // console.log(`👍 ${event.uniqueId} send ${event.likeCount} like`)
       })
 
       socket.on("tiktok-gift", (event) => {
+        setLastEvent(event)
         if (event.giftType === 1 && !event.repeatEnd) {
           // console.log(`${event.uniqueId} is sending gift ${event.giftName} x${event.repeatCount}`);
         } else {
-          console.log(
-            `🎁 ${event.uniqueId} has sent gift ${event.giftName} x${event.repeatCount}`
-          )
+          // console.log(`🎁 ${event.uniqueId} has sent gift ${event.giftName} x${event.repeatCount}`)
         }
-        setLastEvent(event)
       })
 
       socket.on("tiktok-chat", (event) => {
-        console.log(`💬 ${event.uniqueId} say: ${event.comment}`)
+        // console.log(`💬 ${event.uniqueId} say: ${event.comment}`)
         setLastEvent(event)
       })
 
       socket.on("tiktok-share", (event) => {
-        console.log(`🚀 ${event.uniqueId} shared`)
+        // console.log(`🚀 ${event.uniqueId} shared`)
         setLastEvent(event)
       })
 
       socket.on("tiktok-follow", (event) => {
-        console.log(`📌 ${event.uniqueId} followed`)
+        // console.log(`📌 ${event.uniqueId} followed`)
         setLastEvent(event)
       })
 
@@ -188,7 +169,7 @@ function App() {
         }))
       })
 
-      socket.on("tiktok-roomList", (roomList) => {
+      socket.on("broadcast-roomList", (roomList) => {
         setRoomList(roomList)
         console.log(roomList)
       })
@@ -260,7 +241,7 @@ function App() {
               updateAt: now,
             },
           }
-        } else if (Object.keys(userData).length >= window.limitTotalUser) {
+        } else if (Object.keys(current).length >= window.limitTotalUser) {
           return current
         } else {
           return {
@@ -315,7 +296,7 @@ function App() {
       }
     }
     handleEvent()
-  }, [_lastEvent, userData]) // Tính điểm thành viên;
+  }, [_lastEvent, _settings]) // Tính điểm thành viên;
 
   useEffect(() => {
     // if (_loadingText || _settings === {}) return;
@@ -372,11 +353,12 @@ function App() {
 
             await window.wait(1.5)
             setLoadingText("Kiểm tra trùng lặp admin")
-            await channelDuplicateCheck(cid)
+            !window.socketio && (await channelDuplicateCheck(cid))
 
             await window.wait(1.5)
             setLoadingText("Kết nối websocket")
-            window.socketio = await createSocketConnect(cid)
+            window.socketio =
+              window.socketio || (await createSocketConnect(cid))
 
             await window.wait(1.5)
             setLoadingText("Tải thông tin tài khoản")
@@ -407,24 +389,11 @@ function App() {
           window.socketio && window.socketio.disconnect()
         })
     }
+
+    // getStart()
     return () => {
+      // window.socketio && window.socketio.disconnect()
       getStart()
-      window.addEventListener(
-        "message",
-        (event) => {
-          // Do we trust the sender of this message?  (might be
-          // different from what we originally opened, for example).
-
-          if (event.origin !== "https://www.tiktok.com") return
-          else {
-            console.log(event.data)
-          }
-
-          // event.source is popup
-          // event.data is "hi there yourself!  the secret response is: rheeeeet!"
-        },
-        false
-      )
     }
   }, []) // Khởi động
 
@@ -433,10 +402,7 @@ function App() {
   ) : (
     <div className="App">
       <Navbar roomInfo={_ttRoomInfo} pageName={_urlHash} />
-      <MDBContainer
-        className="p-3 text-start"
-        style={{ minWidth: "540px", marginTop: "70px" }}
-      >
+      <MDBContainer className="p-3 text-start" style={{ marginTop: "70px" }}>
         {_urlHash === "setup" ? (
           <Suspense fallback={<div>Loading</div>}>
             <BasicSetting
@@ -477,7 +443,7 @@ function App() {
             fontSize: "14px",
             textAlign: "left",
           }}
-          hideProgressBar={true}
+          hideProgressBar={false}
         />
       </MDBContainer>
     </div>
@@ -491,4 +457,5 @@ export default memo(App)
 // git commit -m 'Init'
 // git remote add origin https://github.com/quang1412/bigtiklive.git
 // git branch -M main
+// git commit -a -m "make it better"
 // git push -u origin main
