@@ -103,6 +103,7 @@ function App() {
       return data
     }
   })
+  const [roomList, setRoomList] = useState([])
 
   window.widgetControl = (action) => {
     try {
@@ -185,6 +186,11 @@ function App() {
           ...current,
           viewerCount: event.viewerCount,
         }))
+      })
+
+      socket.on("tiktok-roomList", (roomList) => {
+        setRoomList(roomList)
+        console.log(roomList)
       })
     })
   }
@@ -460,7 +466,7 @@ function App() {
           </Suspense>
         ) : (
           <Suspense fallback={<div>Loading</div>}>
-            <GetStarted />
+            <GetStarted roomList={roomList} />
           </Suspense>
         )}
         {/* <EventLog event={_lastEvent} /> */}

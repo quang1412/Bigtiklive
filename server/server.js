@@ -10,7 +10,7 @@ const path = require("path")
 const app = express()
 const { defaultSettings, fakeEvent } = require("./fakeData")
 const tiktokSocketPrefix = "tiktok-"
-let activeTiktokRoom = {}
+// let activeTiktokRoom = {}
 
 signatureProvider.config.extraParams.apiKey =
   "MzI2OGMwZDAxNjdhNzQ4ZjFhNDJmOTM0ZjliZmYyYWJhZmZiODUwMWQ4OTI3ZWVhNDRmYzY5"
@@ -85,6 +85,63 @@ function makeid(length) {
 function currentTimeStamp() {
   return new Date().getTime()
 }
+function socketBroadcastRoomList() {
+  const data = tiktokRoomsStorage.rooms.map((room) => room.info)
+  io.of("/").emit("tiktok-roomList", data)
+}
+
+const tiktokRoomsStorage = {
+  rooms: [],
+  getRoomById: function (id) {
+    const array = this.rooms.filter((room) => id === room.id)
+    return array[0]
+  },
+}
+
+const socketsCustomInfo = {
+  data: {},
+  create: function (socketId, channelId) {
+    this.data = {
+      ...this.data,
+      [socketId]: {
+        channelId: channelId,
+        tiktokId: null,
+        settings: {},
+      },
+    }
+  },
+  remove: function (socketId) {
+    delete this.data[socketId]
+  },
+  set: function (socketId, props) {
+    const current = this.data[socketId] || {}
+    this.data[socketId] = { ...current, ...props }
+  },
+  getChannelByTiktokId: function (id = null) {
+    const subscribers = []
+    Object.keys(this.data).forEach((socketId) => {
+      const { channelId, tiktokId } = this.data[socketId]
+      tiktokId === id && subscribers.push(channelId)
+    })
+    return [...new Set(subscribers)] //unique filter
+  },
+  countChannelId: function (cid = null) {
+    let count = 0
+    for (var key in this.data) {
+      const { channelId } = this.data[key]
+      channelId === cid && count++
+    }
+    return count
+  },
+  getChannelSettings: function (cid = null) {
+    let response = defaultSettings()
+    for (var key in this.data) {
+      const { channelId, settings } = this.data[key]
+      if (channelId === cid) response = settings
+    }
+    return response
+  },
+}
 
 class TiktokLive {
   constructor(id) {
@@ -92,44 +149,29 @@ class TiktokLive {
     this.channelIds = []
     this.tiktok = new WebcastPushConnection(id || "norinpham_m4", {
       clientParams: { app_language: "en-US", device_platform: "web" },
-      enableExtendedGiftInfo: true,
+      enableExtendedGiftInfo: false,
       processInitialData: false,
       requestHeaders: {},
       websocketHeaders: {},
     })
-    // this.roomInfo = {
-    //   isConnected: false,
-    //   roomInfo: {
-    //     owner: {
-    //       display_id: this.id,
-    //       avatar_thumb: {
-    //         url_list: ["/assets/images/default-avatar.webp"],
-    //       },
-    //     },
-    //     stream_url: {
-    //       flv_pull_url: {
-    //         FULL_HD1: "#",
-    //         HD1: "#",
-    //         SD1: "#",
-    //         SD2: "#",
-    //       },
-    //     },
-    //   },
-    // }
-    this.roomInfo = {
+    this.info = {
       isConnected: false,
       roomInfo: {
         owner: {
           display_id: this.id,
+          avatar_thumb: {
+            url_list: ["/assets/images/default-avatar.webp"],
+          },
         },
       },
     }
     this.listening()
 
-    activeTiktokRoom[id] = this
+    // activeTiktokRoom[id] = this
+    tiktokRoomsStorage.rooms.push(this)
 
     console.log("CREATE NEW TIKTOK ROOM", this.id)
-    console.log("active Tiktok Room", Object.keys(activeTiktokRoom))
+    // console.log("active Tiktok Room", Object.keys(activeTiktokRoom))
   }
   updateChannelIds() {
     this.channelIds = socketsCustomInfo.getChannelByTiktokId(this.id)
@@ -142,14 +184,14 @@ class TiktokLive {
     // return
 
     clearTimeout(this.disconnectDelay)
-    this.emit("tiktok-roomInfo", this.roomInfo)
-    if (this.roomInfo.isConnected) return
+    this.emit("tiktok-roomInfo", this.info)
+    if (this.info.isConnected) return
 
-    this.roomInfo.isConnected = true
+    this.info.isConnected = true
     this.tiktok
       .connect()
       .then((roomInfo) => {
-        this.roomInfo = roomInfo
+        this.info = roomInfo
         console.log("[tiktok] ✅ ", this.id, "connected :)")
       })
       .catch((err) => {
@@ -157,23 +199,22 @@ class TiktokLive {
           "tiktok-connectFailed",
           `Kết nối tới livestream ${this.id} thất bại - (${err})`
         )
-        this.roomInfo.isConnected = false
+        this.info.isConnected = false
         console.log("[tiktok] ❌ ", this.id, "connect failed :(" + err)
       })
       .finally(() => {
-        this.emit("tiktok-roomInfo", this.roomInfo)
+        this.emit("tiktok-roomInfo", this.info)
+        socketBroadcastRoomList()
       })
   }
   stopConnect() {
-    this.disconnectDelay = setTimeout(() => {
-      this.tiktok.disconnect()
-      delete activeTiktokRoom[this.id]
-    }, 20000)
+    this.disconnectDelay = setTimeout(() => this.tiktok.disconnect(), 60000)
   }
   listening() {
     this.tiktok.on("disconnected", () => {
-      this.roomInfo.isConnected = false
+      this.info.isConnected = false
       this.emit("tiktok-disconnected")
+      socketBroadcastRoomList()
       console.log("[tiktok] ❌", this.id, "disconnected")
     })
 
@@ -209,51 +250,6 @@ class TiktokLive {
       })
     })
   }
-}
-
-const socketsCustomInfo = {
-  data: {},
-  create: (socketId, channelId) => {
-    this.data = {
-      ...this.data,
-      [socketId]: {
-        channelId: channelId,
-        tiktokId: null,
-        settings: {},
-      },
-    }
-  },
-  destroy: (socketId) => {
-    delete this.data[socketId]
-  },
-  set: (socketId, props) => {
-    const current = this.data[socketId] || {}
-    this.data[socketId] = { ...current, ...props }
-  },
-  getChannelByTiktokId: (id = null) => {
-    const subscribers = []
-    Object.keys(this.data).forEach((socketId) => {
-      const { channelId, tiktokId } = this.data[socketId]
-      tiktokId === id && subscribers.push(channelId)
-    })
-    return [...new Set(subscribers)] //unique filter
-  },
-  countChannelId: (cid = null) => {
-    let count = 0
-    for (var key in this.data) {
-      const { channelId } = this.data[key]
-      channelId === cid && count++
-    }
-    return count
-  },
-  getChannelSettings: (cid = null) => {
-    let response = defaultSettings()
-    for (var key in this.data) {
-      const { channelId, settings } = this.data[key]
-      if (channelId === cid) response = settings
-    }
-    return response
-  },
 }
 
 /// WIDGET SOCKET CONNECT /////////////////
@@ -323,24 +319,27 @@ io.of("/").on("connection", async (socket) => {
 
   socket.on("disconnect", (_) => {
     console.log("🔰 A CHANNEL WAS DISCONNECTED", cid)
-    socketsCustomInfo.destroy(socket.id)
+    socketsCustomInfo.remove(socket.id)
   })
 })
 
 io.of("/").adapter.on("create-room", (room) => {
   if (room.includes(tiktokSocketPrefix)) {
     const tiktokId = room.replace(tiktokSocketPrefix, "")
-    const tiktokRoom = activeTiktokRoom[tiktokId] || new TiktokLive(tiktokId)
+    const r =
+      tiktokRoomsStorage.getRoomById(tiktokId) || new TiktokLive(tiktokId)
+
     // tiktokRoom.updateChannelIds()
     // tiktokRoom.startConnect()
-    activeTiktokRoom[tiktokId] = tiktokRoom
+    // activeTiktokRoom[tiktokId] = tiktokRoom
   }
 })
 
 io.of("/").adapter.on("join-room", (room, id) => {
   if (room.includes(tiktokSocketPrefix)) {
     const tiktokId = room.replace(tiktokSocketPrefix, "")
-    const tiktokRoom = activeTiktokRoom[tiktokId]
+    // const tiktokRoom = activeTiktokRoom[tiktokId]
+    const tiktokRoom = tiktokRoomsStorage.getRoomById(tiktokId)
     tiktokRoom && (tiktokRoom.updateChannelIds(), tiktokRoom.startConnect())
   }
 })
@@ -348,7 +347,8 @@ io.of("/").adapter.on("join-room", (room, id) => {
 io.of("/").adapter.on("leave-room", (room, id) => {
   if (room.includes(tiktokSocketPrefix)) {
     const tiktokId = room.replace(tiktokSocketPrefix, "")
-    const tiktokRoom = activeTiktokRoom[tiktokId]
+    // const tiktokRoom = activeTiktokRoom[tiktokId]
+    const tiktokRoom = tiktokRoomsStorage.getRoomById(tiktokId)
     tiktokRoom && tiktokRoom.updateChannelIds()
   }
 })
@@ -356,10 +356,16 @@ io.of("/").adapter.on("leave-room", (room, id) => {
 io.of("/").adapter.on("delete-room", (room) => {
   if (room.includes(tiktokSocketPrefix)) {
     const tiktokId = room.replace(tiktokSocketPrefix, "")
-    const tiktokRoom = activeTiktokRoom[tiktokId]
+    // const tiktokRoom = activeTiktokRoom[tiktokId]
+    const tiktokRoom = tiktokRoomsStorage.getRoomById(tiktokId)
     tiktokRoom && tiktokRoom.stopConnect()
   }
 })
+
+// setInterval(() => {
+//   const data = tiktokRoomsStorage.rooms.map((room) => room.info)
+//   io.of("/").emit("tiktok-roomList", data)
+// }, 10000)
 
 // app.get('/api/tts/word/:word', async (req, res) => {
 //   const word = req.params.word;
