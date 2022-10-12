@@ -67,6 +67,14 @@ function Navbar(props) {
                 Widgets
               </MDBNavbarLink>
             </MDBNavbarItem>
+            {/* <MDBNavbarItem>
+              <MDBNavbarLink
+                className={pageName === "text-to-speech" && "active"}
+                href="#text-to-speech"
+              >
+                Đọc comment
+              </MDBNavbarLink>
+            </MDBNavbarItem> */}
             <MDBNavbarItem>
               <MDBNavbarLink
                 className={pageName === "user-point" && "active"}

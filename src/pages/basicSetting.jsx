@@ -259,8 +259,7 @@ function BasicSetting(props) {
           </MDBRow>
         </div>
       </div>
-      <div className="mb-3">
-        {/* Tuỳ chọn Level */}
+      {/* <div className="mb-3"> 
         <h5 className="text-info">Tuỳ chọn Level</h5>
         <p>
           Người xem có thể tăng cấp độ của họ bằng cách thu thập điểm. Trong
@@ -306,7 +305,7 @@ function BasicSetting(props) {
             </MDBCol>
           </MDBRow>
         </div>
-      </div>
+      </div> */}
       {settings.uid && (
         <>
           <div className="mb-3">

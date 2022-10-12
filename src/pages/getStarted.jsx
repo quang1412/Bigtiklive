@@ -23,19 +23,27 @@ function GetStarted({ roomList }) {
           để tham khảo cách họ setup, sử dụng công cụ, và sáng tạo theo cách
           riêng của mình.
         </p>
-        <div className="d-flex mb-3">
+        <div className="d-flex flex-wrap mb-3">
           {roomList.map(
             (roomInfo, index) =>
               roomInfo.isConnected && (
-                <RoomInfoCard info={roomInfo} className="me-2" key={index} />
+                <RoomInfoCard
+                  info={roomInfo}
+                  className="me-2 mb-2"
+                  key={index}
+                />
               )
           )}
         </div>
-        <div className="d-flex mb-3">
+        <div className="d-flex flex-wrap mb-3">
           {roomList.map(
             (roomInfo, index) =>
               !roomInfo.isConnected && (
-                <RoomInfoCard info={roomInfo} className="me-2" key={index} />
+                <RoomInfoCard
+                  info={roomInfo}
+                  className="me-2 mb-2"
+                  key={index}
+                />
               )
           )}
         </div>

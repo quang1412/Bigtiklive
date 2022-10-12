@@ -55,7 +55,19 @@ window.randomInt = (min, max) => {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
-
+window.playSound = (
+  url = "https://isetup.vn/tiktok/assets/sound/new-message-4.ogg",
+  vol = 50
+) => {
+  const audio = new Audio(url)
+  audio.volume = 0
+  const playPromise = audio.play()
+  if (playPromise !== undefined) {
+    audio.currentTime = 0
+    audio.volume = vol / 100
+    audio.play()
+  }
+}
 window.archivePoint = {}
 window.pointUpdateDelay = {}
 

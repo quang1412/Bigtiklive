@@ -254,7 +254,7 @@ const TutorialCard = ({ settings, playerCount, show }) => {
           <>
             comment nội dung
             <span className="text-danger ms-2">
-              "{settings.widget_wof_commentKey}"
+              {settings.widget_wof_commentKey}
             </span>
           </>
         ) : (

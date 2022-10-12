@@ -15,6 +15,7 @@ const GetStarted = lazy(() => import("./pages/getStarted"))
 const BasicSetting = lazy(() => import("./pages/basicSetting"))
 const UserAndPoint = lazy(() => import("./pages/userAndPoint"))
 const Widgets = lazy(() => import("./pages/widgets"))
+const TextToSpeech = lazy(() => import("./pages/textToSpeech"))
 
 const auth = getAuth()
 window.toast = toast
@@ -30,19 +31,19 @@ window.createFakeEvent = (name = null) => {
 }
 window.handleCopy = (e) => {
   const target = e.target
-  const copyTargetId = target.getAttribute("data-copy-target")
-  const copyTarget = document.getElementById(copyTargetId)
-  const copyValue = copyTarget.value
+  const id = target.getAttribute("data-copy-target")
+  const input = document.getElementById(id)
+  const value = input.value
 
-  navigator.clipboard.writeText(copyValue).then(
-    function () {
-      copyTarget.select()
+  navigator.clipboard
+    .writeText(value)
+    .then(function () {
+      input.select()
       window.toast.success("Đã copy vào bộ nhớ đệm")
-    },
-    function (err) {
+    })
+    .catch(function (err) {
       window.toast.error("Đã xảy ra lỗi")
-    }
-  )
+    })
 }
 window.getUserLevel = (point, levelPoint, levelMultiplier) => {
   // const level = point / (levelPoint * levelMultiplier)
@@ -87,6 +88,22 @@ function App() {
     }
   })
   const [roomList, setRoomList] = useState([])
+
+  const likeStorage = useRef({})
+  const likeDelay = (event) => {
+    const { uniqueId, likeCount } = event
+    clearTimeout(likeStorage.current[uniqueId]?.timeOut)
+    const totalLike =
+      (likeStorage.current[uniqueId]?.likeCount || 0) + likeCount
+    likeStorage.current[uniqueId] = {
+      likeCount: totalLike,
+      timeOut: setTimeout(() => {
+        setLastEvent({ ...event, likeCount: totalLike })
+        console.log(`👍👍 ${uniqueId} send total ${totalLike} like`)
+        delete likeStorage.current[uniqueId]
+      }, 5000),
+    }
+  }
 
   window.widgetControl = (action) => {
     try {
@@ -134,8 +151,8 @@ function App() {
       })
 
       socket.on("tiktok-like", (event) => {
-        setLastEvent(event)
-        // console.log(`👍 ${event.uniqueId} send ${event.likeCount} like`)
+        likeDelay(event)
+        console.log(`👍 ${event.uniqueId} send ${event.likeCount} like`)
       })
 
       socket.on("tiktok-gift", (event) => {
@@ -143,22 +160,24 @@ function App() {
         if (event.giftType === 1 && !event.repeatEnd) {
           // console.log(`${event.uniqueId} is sending gift ${event.giftName} x${event.repeatCount}`);
         } else {
-          // console.log(`🎁 ${event.uniqueId} has sent gift ${event.giftName} x${event.repeatCount}`)
+          console.log(
+            `🎁 ${event.uniqueId} has sent gift ${event.giftName} x${event.repeatCount}`
+          )
         }
       })
 
       socket.on("tiktok-chat", (event) => {
-        // console.log(`💬 ${event.uniqueId} say: ${event.comment}`)
+        console.log(`💬 ${event.uniqueId} say: ${event.comment}`)
         setLastEvent(event)
       })
 
       socket.on("tiktok-share", (event) => {
-        // console.log(`🚀 ${event.uniqueId} shared`)
+        console.log(`🚀 ${event.uniqueId} shared`)
         setLastEvent(event)
       })
 
       socket.on("tiktok-follow", (event) => {
-        // console.log(`📌 ${event.uniqueId} followed`)
+        console.log(`📌 ${event.uniqueId} followed`)
         setLastEvent(event)
       })
 
@@ -426,6 +445,10 @@ function App() {
               users={userData}
             />
           </Suspense>
+        ) : _urlHash === "text-to-speech" ? (
+          <Suspense fallback={<div>Loading</div>}>
+            <TextToSpeech settings={_settings} />
+          </Suspense>
         ) : (
           <Suspense fallback={<div>Loading</div>}>
             <GetStarted roomList={roomList} />
@@ -455,3 +478,5 @@ export default memo(App)
 // git branch -M main
 // git commit -a -m "make it better"
 // git push -u origin main
+
+// https://github.com/quang1412/bigtiklive.git

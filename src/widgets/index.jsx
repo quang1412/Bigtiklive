@@ -1,8 +1,8 @@
-import React, { useEffect, useState, lazy, Suspense } from "react"
+import React, { useEffect, useState, useRef, lazy, Suspense } from "react"
 import StartScreen from "../components/loadingScreen"
 import io from "socket.io-client"
 import { defaultSettings } from "../modules/fakeData"
-import "../App.css"
+import "./style.css"
 
 const Alertbox = lazy(() => import("./Alertbox"))
 const LikeRanking = lazy(() => import("./LikeRanking"))
@@ -14,6 +14,22 @@ export default function Widget() {
   const [loadingText, setLoadingText] = useState("Kết nối máy chủ")
   const [settings, updateSettings] = useState(defaultSettings())
   const [event, setEvent] = useState({})
+
+  const likeStorage = useRef({})
+  const likeDelay = (event) => {
+    const { uniqueId, likeCount } = event
+    clearTimeout(likeStorage.current[uniqueId]?.timeOut)
+    const totalLike =
+      (likeStorage.current[uniqueId]?.likeCount || 0) + likeCount
+    likeStorage.current[uniqueId] = {
+      likeCount: totalLike,
+      timeOut: setTimeout(() => {
+        setEvent({ ...event, likeCount: totalLike })
+        console.log(`👍👍 ${uniqueId} send total ${totalLike} like`)
+        delete likeStorage.current[uniqueId]
+      }, 5000),
+    }
+  }
 
   function createSocketConnect(cid) {
     return new Promise((resolve, reject) => {
@@ -36,7 +52,8 @@ export default function Widget() {
         setEvent(event)
       })
       socket.on("tiktok-like", (event) => {
-        setEvent(event)
+        // setEvent(event)
+        likeDelay(event)
       })
       socket.on("tiktok-gift", (event) => {
         setEvent(event)
@@ -79,13 +96,20 @@ export default function Widget() {
         setLoadingText(`${error}`)
       }
     }
-    getStart()
-    // return () => getStart()
+    // clearTimeout(window.startUp)
+    // window.startUp = setTimeout(getStart, 1000)
+    return () => {
+      // clearTimeout(window.startUp)
+      getStart()
+    }
   }, [])
 
   return (
     <>
-      <div className="App">
+      <div
+        className="App"
+        style={{ background: "transparent", backgroundColor: "transparent" }}
+      >
         {loadingText ? (
           <StartScreen title={loadingTitle} text={loadingText} />
         ) : (
