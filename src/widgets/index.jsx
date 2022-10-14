@@ -3,16 +3,13 @@ import StartScreen from "../components/loadingScreen"
 import io from "socket.io-client"
 import { defaultSettings } from "../modules/fakeData"
 import "./style.css"
+import BigtikProRequired from "../components/bigtikProRequired"
 
 const Alertbox = lazy(() => import("./Alertbox"))
 const LikeRanking = lazy(() => import("./LikeRanking"))
 const WheelOfFortune = lazy(() => import("./WheelOfFortune"))
 
 const pathname = window.location.pathname
-
-const UpgradeRequestMessage = () => {
-  return <h6>Bigtik pro request</h6>
-}
 
 export default function Widget() {
   const [loadingTitle, setLoadingTitle] = useState("Đang chuẩn bị")
@@ -125,10 +122,14 @@ export default function Widget() {
             {pathname === "/widget/likeranking" &&
               (isProChannel ? (
                 <Suspense fallback={<div>Loading</div>}>
-                  <LikeRanking event={event} settings={settings} />
+                  <LikeRanking
+                    event={event}
+                    settings={settings}
+                    isProChannel={isProChannel}
+                  />
                 </Suspense>
               ) : (
-                <UpgradeRequestMessage />
+                <BigtikProRequired />
               ))}
             {pathname === "/widget/wheeloffortune" &&
               (isProChannel ? (
@@ -140,7 +141,7 @@ export default function Widget() {
                   />
                 </Suspense>
               ) : (
-                <UpgradeRequestMessage />
+                <BigtikProRequired />
               ))}
           </>
         )}

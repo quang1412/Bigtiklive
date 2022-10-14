@@ -1,7 +1,7 @@
 import React, { useEffect, useState, memo } from "react"
 import style from "./style.module.css"
 import Winwheel from "winwheel"
-import ProRequired from "../../components/proRequired"
+import BigtikProRequired from "../../components/bigtikProRequired"
 const size = 400
 
 const demoPlayer = {
@@ -409,7 +409,7 @@ function WheelofFortune({ settings, event, isDemo, isProChannel }) {
       style={{ width: `${size}px`, height: `${size}px` }}
     >
       {!isProChannel && !isDemo ? (
-        <ProRequired />
+        <BigtikProRequired />
       ) : (
         <>
           <TutorialCard

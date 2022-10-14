@@ -12,6 +12,7 @@ import {
   Legend,
 } from "chart.js"
 import DemoData from "./demoData"
+import BigtikProRequired from "../../components/bigtikProRequired"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -141,7 +142,7 @@ const TopperNameImage = (props) => {
 }
 
 const TopLike = (props) => {
-  const { settings, event } = props
+  const { settings, event, isDemo, isProChannel } = props
   const [viewerData, setViewerData] = useState({})
   const [viewerPoint, setViewerPoint] = useState({})
   const [lastEvents, setLastEvents] = useState([])
@@ -178,6 +179,8 @@ const TopLike = (props) => {
   }, [resetCountDown])
 
   useEffect(() => {
+    if (!isDemo && !isProChannel) return
+
     if (event.name === "reset-likerank") {
       setViewerPoint({})
       setLastEvents([])
