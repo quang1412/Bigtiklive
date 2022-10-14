@@ -175,8 +175,8 @@ function UserAndPoint({ authData, users }) {
             </MDBRow>
             <MDBRow>
               <MDBCol>
-                <MDBCard background="dark" className="text-white">
-                  <MDBCardBody>
+                <MDBCard background="white" className="text-dark">
+                  <MDBCardBody className=" py-2">
                     <DataTable
                       columns={columns}
                       data={data}
@@ -187,11 +187,11 @@ function UserAndPoint({ authData, users }) {
                       onChangeRowsPerPage={handlePerRowsChange}
                       onChangePage={handlePageChange}
                       // sortFunction={customSort}
-                      theme="transparent"
+                      // theme="transparent"
                       paginationComponentOptions={{
                         noRowsPerPage: false,
                       }}
-                      customStyles={customStyles}
+                      // customStyles={customStyles}
                     />
                   </MDBCardBody>
                 </MDBCard>

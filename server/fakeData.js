@@ -22,7 +22,7 @@ function getTimestamp() {
 function defaultSettings(cid = 0) {
   return {
     basic_ispro: false,
-    basic_proexpirationdate: getTimestamp() + freeTrialPeriod,
+    basic_proexpirationdate: 0,
     widget_alertbox_follow_imageurl: "assets/images/jumpy-t-rex.gif",
     widget_alertbox_share_active: true,
     widget_likeranking_titleColor: "#ffffff",

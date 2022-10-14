@@ -1,4 +1,5 @@
 :root {
+  font-size: 14px;
   --mdb-muted: #6c757d;
   --toastify-color-light: var(--mdb-light);
   --toastify-color-dark: var(--mdb-dark);
@@ -9,9 +10,9 @@
   --toastify-color-transparent: rgba(255, 255, 255, 0.7);
 }
 body {
-  /* max-width: 1080px; */
-  min-width: 540px;
-  /* margin: 0 auto; */
+  /* min-width: 540px; */
+  background-color: #f6f6fb;
+  color: var(--mdb-dark);
 }
 
 .App {
@@ -54,28 +55,9 @@ body {
   }
 }
 
-body {
-  background-color: #212121;
-  color: white;
-}
-
-input[type="number"],
-input[type="text"],
-select {
-  background-color: var(--mdb-dark) !important;
-}
-
-input[type="number"],
-input[type="text"],
-.input-group-text,
-select {
-  color: var(--mdb-light) !important;
-  border-color: var(--mdb-muted) !important;
-}
-
-.navbar-light .navbar-nav .nav-link.active {
+/* .navbar-light .navbar-nav .nav-link.active {
   color: var(--mdb-black);
-}
+} */
 
 .Avatar-dropdown .dropdown-toggle::after {
   display: none;
@@ -89,6 +71,6 @@ select {
   border-color: var(--mdb-muted) !important;
 }
 
-.dropdown-toggle::after {
+.dropdown-toggle.no-arrow::after {
   display: none;
 }

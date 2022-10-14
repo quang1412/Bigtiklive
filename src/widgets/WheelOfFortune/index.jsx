@@ -1,7 +1,7 @@
 import React, { useEffect, useState, memo } from "react"
 import style from "./style.module.css"
 import Winwheel from "winwheel"
-// import { MDBBtn } from "mdb-react-ui-kit"
+import ProRequired from "../../components/proRequired"
 const size = 400
 
 const demoPlayer = {
@@ -67,18 +67,14 @@ const demoPlayer = {
   },
 }
 
-window.wheelSoundTrigger = () => {
-  console.log("play sound")
-}
+window.wheelSoundTrigger = () => console.log("play sound")
 
 const WheelBackground = () => {
   const [index, setindex] = useState(0)
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setindex(1 - index)
-    }, 1000)
-    return () => clearInterval(intervalId)
+    const i = setTimeout(() => setindex(1 - index), 1000)
+    return () => clearTimeout(i)
   }, [index])
 
   return (
@@ -176,7 +172,7 @@ const Wheel = (props) => {
 }
 
 const Winner = (props) => {
-  const { info } = props
+  const { info, duration } = props
   const [isShow, setShow] = useState(true)
 
   function onAnimationEnd(e) {
@@ -187,7 +183,7 @@ const Winner = (props) => {
       e.target.addEventListener("animationend", () => {
         setShow(false)
       })
-    }, 10000)
+    }, duration * 1000)
   }
   return (
     isShow && (
@@ -243,7 +239,7 @@ const TutorialCard = ({ settings, playerCount, show }) => {
     <div
       style={{ fontSize: ".8rem", width: "80%" }}
       className={
-        "bg-light text-dark text-start p-2 rounded-5 mx-auto animate__animated " +
+        "bg-light border border-1 text-dark text-start p-2 rounded-5 mx-auto animate__animated " +
         (show ? "animate__flipInX" : "animate__flipOutX")
       }
     >
@@ -318,8 +314,7 @@ const JoinedPlayer = ({ players, show }) => {
   )
 }
 
-function WheelofFortune(props) {
-  const { settings, event } = props
+function WheelofFortune({ settings, event, isDemo, isProChannel }) {
   const [players, setPlayers] = useState({})
   const [canJoin, setCanjoin] = useState(true)
   const [winner, setWinner] = useState(false)
@@ -348,6 +343,8 @@ function WheelofFortune(props) {
   }
 
   useEffect(() => {
+    if (!isDemo && !isProChannel) return
+
     const validFollowrRole = {
       0: settings.widget_wof_unfollower,
       1: settings.widget_wof_follower,
@@ -411,31 +408,37 @@ function WheelofFortune(props) {
       className="position-relative mx-auto"
       style={{ width: `${size}px`, height: `${size}px` }}
     >
-      <TutorialCard
-        settings={settings}
-        playerCount={Object.keys(players).length}
-        show={canJoin}
-      />
-      <div
-        className="position-absolute w-100 text-center"
-        style={{ zIndex: "1" }}
-      >
-        <JoinedPlayer players={players} show={canJoin} />
-      </div>
-      <div className="position-absolute  ">
-        <Wheel players={players} />
-      </div>
-      <div className="position-absolute w-100 h-100">
-        <WheelBackground />
-      </div>
-      <div className="position-absolute w-100 h-100">
-        {winner && winner.id && <Winner info={winner} />}
-      </div>
-      <div className="position-absolute w-100 h-100 text-center">
-        {/* <div className='w-100 position-absolute bottom-0 mb-2'>
-            <MDBBtn size="sm" color='light' className='text-danger' onClick={startSpin}>Quay</MDBBtn> <MDBBtn size="sm" color='light' className='text-danger' onClick={resetWheel}>Đặt lại</MDBBtn>
-          </div> */}
-      </div>
+      {!isProChannel && !isDemo ? (
+        <ProRequired />
+      ) : (
+        <>
+          <TutorialCard
+            settings={settings}
+            playerCount={Object.keys(players).length}
+            show={canJoin}
+          />
+          <div
+            className="position-absolute w-100 text-center"
+            style={{ zIndex: "1" }}
+          >
+            <JoinedPlayer players={players} show={canJoin} />
+          </div>
+          <div className="position-absolute  ">
+            <Wheel players={players} />
+          </div>
+          <div className="position-absolute w-100 h-100">
+            <WheelBackground />
+          </div>
+          <div className="position-absolute w-100 h-100">
+            {winner && winner.id && (
+              <Winner
+                info={winner}
+                duration={settings.widget_wof_winnerShowDuration || 10}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -51,10 +51,9 @@ window.wait = (s) => {
     setTimeout(resolve, s * 1000)
   })
 }
-window.randomInt = (min, max) => {
-  // min and max included
-  return Math.floor(Math.random() * (max - min + 1) + min)
-}
+window.randomInt = (min = 10, max = 99) =>
+  Math.floor(Math.random() * (max - min + 1) + min)
+
 window.playSound = (
   url = "https://isetup.vn/tiktok/assets/sound/new-message-4.ogg",
   vol = 50
@@ -90,7 +89,7 @@ export default function Main() {
           index
           element={
             <Suspense fallback={<div>Loading</div>}>
-              <Home />{" "}
+              <Home />
             </Suspense>
           }
         />
@@ -98,7 +97,7 @@ export default function Main() {
           path="widget/*"
           element={
             <Suspense fallback={<div>Loading</div>}>
-              <Widgets />{" "}
+              <Widgets />
             </Suspense>
           }
         />
@@ -106,7 +105,7 @@ export default function Main() {
           path="private-permissions"
           element={
             <Suspense fallback={<div>Loading</div>}>
-              <PrivatePermissions />{" "}
+              <PrivatePermissions />
             </Suspense>
           }
         />
@@ -114,7 +113,7 @@ export default function Main() {
           path="terms-of-service"
           element={
             <Suspense fallback={<div>Loading</div>}>
-              <TermsOfService />{" "}
+              <TermsOfService />
             </Suspense>
           }
         />

@@ -82,7 +82,7 @@ const TiktokIdInputField = ({ settings, updateSettings }) => {
             disabled={!isShow}
             ref={tiktokId}
             type="text"
-            className={`form-control text-white bg-dark`}
+            className={`form-control`}
             placeholder="Id tài khoản Tiktok"
             defaultValue={settings.basic_tiktokid || ""}
           />
@@ -117,9 +117,12 @@ const TiktokIdInputField = ({ settings, updateSettings }) => {
   )
 }
 
-function BasicSetting(props) {
-  const { settings, handleSettingChange, updateSettings, setUserData } = props
-
+function BasicSetting({
+  settings,
+  handleSettingChange,
+  updateSettings,
+  setUserData,
+}) {
   async function resetChannelUser() {
     if (
       window.confirm(
@@ -133,12 +136,12 @@ function BasicSetting(props) {
 
   return (
     <>
-      <div className="mb-5">
+      <div className="mb-2">
         <h4 className="text-info">Cài đặt</h4>
         <p>Tuỳ biến các cài đặt cơ bản tại đây</p>
       </div>
-      <div className="mb-3">
-        <div className="p-3">
+      <div className="mb-2">
+        <div className="p-2">
           {!settings.uid ? (
             <MDBRow>
               <MDBCol>
@@ -164,18 +167,18 @@ function BasicSetting(props) {
           )}
         </div>
       </div>
-      <div className="mb-3">
+      <div className="mb-2">
         {/* Tính điểm */}
         <h5 className="text-info">Tính điểm</h5>
-        <div className="p-3">
-          <MDBRow className="mb-3">
+        <div className="p-2">
+          <MDBRow className="mb-2">
             {/*Tên đồng coin của bạn*/}
             <MDBCol size="sm" md="4" lg="3" xl="2">
               <label>Tên đồng coin của bạn</label>
             </MDBCol>
             <MDBCol size="sm" md="5" lg="4" xl="3">
               <input
-                className="form-control text-white bg-dark"
+                className="form-control"
                 defaultValue={settings.basic_nameofcoin}
                 placeholder="Xu"
                 type="text"
@@ -197,7 +200,7 @@ function BasicSetting(props) {
             </MDBCol>
             <MDBCol size="sm" md="5" lg="4" xl="3">
               <input
-                className="form-control text-white bg-dark"
+                className="form-control"
                 defaultValue={settings.basic_coinperdiamond}
                 placeholder="1"
                 min="1"
@@ -219,7 +222,7 @@ function BasicSetting(props) {
             </MDBCol>
             <MDBCol size="sm" md="5" lg="4" xl="3">
               <input
-                className="form-control text-white bg-dark"
+                className="form-control"
                 defaultValue={settings.basic_coinpershare}
                 placeholder="1"
                 min="1"
@@ -231,22 +234,22 @@ function BasicSetting(props) {
           </MDBRow>
         </div>
       </div>
-      <div className="mb-3">
+      <div className="mb-2">
         {/* Ưu đãi cho Follower */}
         <h5 className="text-info">Ưu đãi cho Follower</h5>
         <p>
           Bạn có thể đặt hệ số bonus cho follower, giúp họ nhận nhiều coin hơn
           cho mỗi tương tác.
         </p>
-        <div className="p-3">
+        <div className="p-2">
           <MDBRow>
             <MDBCol size="sm" md="4" lg="3" xl="2">
               <label>Tỷ lệ ưu đãi follower</label>
             </MDBCol>
             <MDBCol size="sm" md="5" lg="4" xl="3">
-              <MDBInputGroup textAfter={<span className="text-white">%</span>}>
+              <MDBInputGroup textAfter={<span>%</span>}>
                 <input
-                  className="form-control text-white bg-dark"
+                  className="form-control"
                   defaultValue={settings.basic_followerbonus}
                   placeholder="0"
                   min="0"
@@ -259,7 +262,7 @@ function BasicSetting(props) {
           </MDBRow>
         </div>
       </div>
-      {/* <div className="mb-3"> 
+      {/* <div className="mb-2"> 
         <h5 className="text-info">Tuỳ chọn Level</h5>
         <p>
           Người xem có thể tăng cấp độ của họ bằng cách thu thập điểm. Trong
@@ -268,14 +271,14 @@ function BasicSetting(props) {
           Do đó, số điểm cần thiết để đạt được cấp độ tiếp theo tăng lên theo
           cấp số nhân
         </p>
-        <div className="p-3">
+        <div className="p-2">
           <MDBRow className="mb-2">
             <MDBCol size="sm" md="4" lg="3" xl="2">
               <label>Số điểm cho mỗi level</label>
             </MDBCol>
             <MDBCol size="sm" md="5" lg="4" xl="3">
               <input
-                className="form-control text-white bg-dark"
+                className="form-control"
                 defaultValue={settings.basic_levelcoin}
                 placeholder="1"
                 min="1"
@@ -292,7 +295,7 @@ function BasicSetting(props) {
             <MDBCol size="sm" md="5" lg="4" xl="3">
               <MDBInputGroup textAfter={<span className="text-white">%</span>}>
                 <input
-                  className="form-control text-white bg-dark"
+                  className="form-control"
                   defaultValue={settings.basic_levelmultiplier}
                   placeholder="1"
                   min="1"
@@ -308,13 +311,13 @@ function BasicSetting(props) {
       </div> */}
       {settings.uid && (
         <>
-          <div className="mb-3">
+          <div className="mb-2">
             {/* Reset coin & level */}
             <h5 className="text-info">Reset thành viên</h5>
             <p>
               Sử dụng tính năng này để xoá toàn bộ thành viên trong kênh của bạn
             </p>
-            <div className="mb-3 p-3">
+            <div className="mb-2 p-2">
               <MDBBtn
                 onClick={resetChannelUser}
                 color="danger"
@@ -325,17 +328,24 @@ function BasicSetting(props) {
             </div>
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2">
             {/* Tài khoản */}
             <h5 className="text-info">Tài khoản</h5>
             <p>
               Nếu có vấn đề gì với kết nối, bạn hãy thử đăng xuất và đăng nhập
               lại, dữ liệu của bạn đã được lưu trữ an toàn.
             </p>
-            <div className="p-3">
+            <div className="p-2">
+              <p>
+                Gói <b>Bigtik Pro</b> hết hạn vào lúc:
+                <b>
+                  {" "}
+                  {new Date(settings.basic_proexpirationdate).toUTCString()}
+                </b>
+              </p>
               <MDBBtn
                 onClick={logout}
-                color="dark"
+                color="light"
                 className="px-5 text-nowrap border border-1"
               >
                 Đăng xuất

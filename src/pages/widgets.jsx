@@ -1,4 +1,4 @@
-import React, { useState, memo } from "react"
+import React, { useState, useEffect, memo } from "react"
 import {
   MDBRow,
   MDBCol,
@@ -26,6 +26,7 @@ import WheelOfFortune from "../widgets/WheelOfFortune"
 import AlertboxConfig from "../components/modalAlertboxSettings"
 import LikeRankingConfig from "../components/modalLikeRankingSettings"
 import WheelOfFortuneSettings from "../components/modalWheelSettings"
+import "../libs/css/ribbon.css"
 
 const homeUrl = window.location.origin
 
@@ -63,17 +64,17 @@ function Widgets(props) {
       <div className="mb-3">
         {/* ALERTBOX */}
         <h5 className="text-info">AlertBox</h5>
-        <p>
+        <span>
           Tuỳ biến hiệu ứng thông báo cho các sự kiện donate, follow, like,
           share.
-        </p>
+        </span>
         <div className="p-3">
           <MDBRow className="mb-2">
             <MDBCol size="md" lg="11" xl="9">
               {authData && (
-                <MDBInputGroup>
+                <MDBInputGroup className="mb-2">
                   <input
-                    className="form-control rounded bg-dark text-light border-muted mb-1 me-1"
+                    className="form-control rounded border-muted mb-1 me-1"
                     id="alertboxWidgetUrl"
                     type="text"
                     style={{ borderStyle: "dashed", cursor: "text" }}
@@ -85,18 +86,33 @@ function Widgets(props) {
                     }
                   />
                   <MDBBtn
-                    color="dark"
-                    className="text-light rounded border border-muted mb-1 me-1"
+                    color="light"
+                    className="rounded border border-1 mb-1 me-1"
                     data-copy-target="alertboxWidgetUrl"
                     onClick={window.handleCopy}
                   >
                     <MDBIcon className="me-1" fas icon="link" /> Copy
                   </MDBBtn>
-                  <MDBDropdown className="rounded border border-muted mb-1 me-1 text-nowrap">
-                    <MDBDropdownToggle className="bg-dark text-success h-100">
+                  <MDBDropdown
+                    className="rounded border border-1 mb-1 me-1 text-nowrap"
+                    options={{
+                      modifiers: [
+                        {
+                          name: "offset",
+                          options: {
+                            offset: [0, 3],
+                          },
+                        },
+                      ],
+                    }}
+                  >
+                    <MDBDropdownToggle
+                      color="light"
+                      className="no-arrow text-success h-100"
+                    >
                       <MDBIcon className="me-1" fas icon="heart" /> Test
                     </MDBDropdownToggle>
-                    <MDBDropdownMenu dark>
+                    <MDBDropdownMenu light>
                       <MDBDropdownItem
                         link
                         childTag="button"
@@ -128,8 +144,8 @@ function Widgets(props) {
                     </MDBDropdownMenu>
                   </MDBDropdown>
                   <MDBBtn
-                    color="dark"
-                    className="text-light rounded border border-muted mb-1 text-nowrap"
+                    color="light"
+                    className="rounded border border-1 mb-1 text-nowrap"
                     onClick={() => {
                       setModalShow(true)
                       setModalSetting("alertbox")
@@ -140,8 +156,8 @@ function Widgets(props) {
                 </MDBInputGroup>
               )}
               <MDBCard
-                background="dark"
-                className="text-white position-relative border border-muted"
+                background="light"
+                className="text-white position-relative border border-1"
               >
                 <MDBCardBody
                   style={{
@@ -160,13 +176,13 @@ function Widgets(props) {
       <div className="mb-3">
         {/* LIKE RANK */}
         <h5 className="text-info">Top Thả tim</h5>
-        <p>Xếp hạng người xem dựa trên lượt thả tim</p>
+        <span>Xếp hạng người xem dựa trên lượt thả tim</span>
         <MDBRow className="p-3 mb-2">
           <MDBCol size="md" lg="11" xl="9">
             {authData && (
-              <MDBInputGroup>
+              <MDBInputGroup className="mb-2">
                 <input
-                  className="form-control rounded bg-dark text-light border-muted mb-1 me-1 d-block d-md-inline-block"
+                  className="form-control rounded border-muted mb-1 me-1 d-block d-md-inline-block"
                   id="likerankingWidgetUrl"
                   type="text"
                   style={{ borderStyle: "dashed", cursor: "text" }}
@@ -178,24 +194,24 @@ function Widgets(props) {
                   }
                 />
                 <MDBBtn
-                  color="dark"
-                  className="text-light rounded border border-muted mb-1 me-1"
+                  color="light"
+                  className="rounded border border-1 mb-1 me-1"
                   data-copy-target="likerankingWidgetUrl"
                   onClick={window.handleCopy}
                 >
                   <MDBIcon className="me-1" fas icon="link" /> Copy
                 </MDBBtn>
                 <MDBBtn
-                  color="dark"
-                  className="text-danger rounded border border-muted mb-1 me-1"
+                  color="light"
+                  className="text-danger rounded border border-1 mb-1 me-1"
                   data-copy-target="likerankingWidgetUrl"
                   onClick={() => window.widgetControl("reset-likerank")}
                 >
                   <MDBIcon className="me-1" fas icon="trash-alt" /> Reset
                 </MDBBtn>
                 <MDBBtn
-                  color="dark"
-                  className="text-light rounded border border-muted mb-1"
+                  color="light"
+                  className="rounded border border-1 mb-1"
                   data-copy-target="likerankingWidgetUrl"
                   onClick={() => {
                     setModalShow(true)
@@ -207,8 +223,8 @@ function Widgets(props) {
               </MDBInputGroup>
             )}
             <MDBCard
-              background="dark"
-              className="text-white position-relative border border-muted"
+              background="light"
+              className="text-white position-relative border border-1"
             >
               <MDBCardBody
                 style={{
@@ -218,6 +234,9 @@ function Widgets(props) {
                 }}
               >
                 <LikeRanking settings={settings} event={event} />
+                <div className="ribbon-outer position-absolute top-0 end-0">
+                  <div className="ribbon-inner">Bigtik Pro</div>
+                </div>
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
@@ -226,14 +245,17 @@ function Widgets(props) {
       <div className="mb-3">
         {/* WHEEL OF FORTUNE */}
         <h5 className="text-info">Wheel of fortune</h5>
-        <p>Mô tả...</p>
+        <span>
+          Tạo mini game giữ chân người xem, kích thước widget được đề xuất
+          400x500px
+        </span>
         <div className="p-3">
           <MDBRow className="mb-2">
             <MDBCol size="md" lg="11" xl="9">
               {authData && (
-                <MDBInputGroup>
+                <MDBInputGroup className="mb-2">
                   <input
-                    className="form-control rounded bg-dark text-light border-muted mb-1 me-1"
+                    className="form-control rounded border-muted mb-1 me-1"
                     id="wheelOfFortuneWidgetUrl"
                     type="text"
                     style={{ borderStyle: "dashed", cursor: "text" }}
@@ -241,33 +263,30 @@ function Widgets(props) {
                     value={`${homeUrl}/widget/wheeloffortune?cid=${cid}`}
                   />
                   <MDBBtn
-                    color="dark"
-                    className="text-light rounded border border-muted mb-1 me-1"
+                    color="light"
+                    className="rounded border border-1 mb-1 me-1"
                     data-copy-target="wheelOfFortuneWidgetUrl"
                     onClick={window.handleCopy}
                   >
                     <MDBIcon className="me-1" fas icon="link" /> Copy
                   </MDBBtn>
                   <MDBBtn
-                    color="dark"
-                    className="text-success rounded border border-muted mb-1 me-1"
-                    data-copy-target="wheelOfFortuneWidgetUrl"
+                    color="light"
+                    className="text-success rounded border border-1 mb-1 me-1"
                     onClick={() => window.widgetControl("wheel-start-spin")}
                   >
                     <MDBIcon className="me-1" fas icon="play" /> Quay
                   </MDBBtn>
                   <MDBBtn
-                    color="dark"
-                    className="text-danger rounded border border-muted mb-1 me-1"
-                    data-copy-target="wheelOfFortuneWidgetUrl"
+                    color="light"
+                    className="text-danger rounded border border-1 mb-1 me-1"
                     onClick={() => window.widgetControl("wheel-reset")}
                   >
                     <MDBIcon className="me-1" fas icon="trash-alt" /> Reset
                   </MDBBtn>
                   <MDBBtn
-                    color="dark"
-                    className="text-light rounded border border-muted mb-1"
-                    data-copy-target="wheelOfFortuneWidgetUrl"
+                    color="light"
+                    className="rounded border border-1 mb-1"
                     onClick={() => {
                       setModalShow(true)
                       setModalSetting("wheel")
@@ -278,8 +297,8 @@ function Widgets(props) {
                 </MDBInputGroup>
               )}
               <MDBCard
-                background="dark"
-                className="text-white position-relative border border-muted"
+                background="light"
+                className="text-white position-relative border border-1"
               >
                 <MDBCardBody
                   className=""
@@ -289,7 +308,14 @@ function Widgets(props) {
                     overflow: "hidden",
                   }}
                 >
-                  <WheelOfFortune settings={settings} event={event} />
+                  <WheelOfFortune
+                    settings={settings}
+                    event={event}
+                    isDemo={true}
+                  />
+                  <div className="ribbon-outer position-absolute top-0 end-0">
+                    <div className="ribbon-inner">Bigtik Pro</div>
+                  </div>
                 </MDBCardBody>
               </MDBCard>
             </MDBCol>
@@ -297,15 +323,16 @@ function Widgets(props) {
         </div>
       </div>
       <MDBModal show={modalShow} setShow={setModalShow} tabIndex="-1">
-        <MDBModalDialog scrollable size="lg">
-          <MDBModalContent className="bg-dark h-100">
-            <MDBModalHeader className="border-1 border-muted">
+        <MDBModalDialog size="md">
+          <MDBModalContent>
+            <MDBModalHeader className="">
               <MDBModalTitle>Cài đặt widget</MDBModalTitle>
-              <MDBBtn
+              <a
+                tag="a"
                 className="btn-close"
-                color="white"
+                role="button"
                 onClick={() => setModalShow(false)}
-              ></MDBBtn>
+              ></a>
             </MDBModalHeader>
             <MDBModalBody>
               {modalSetting === "alertbox" && (
@@ -327,7 +354,7 @@ function Widgets(props) {
                 />
               )}
             </MDBModalBody>
-            <MDBModalFooter className="border-1 border-muted">
+            <MDBModalFooter className="">
               <MDBBtn color="info" onClick={() => setModalShow(false)}>
                 Đóng
               </MDBBtn>

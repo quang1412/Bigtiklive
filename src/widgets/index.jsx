@@ -8,11 +8,17 @@ const Alertbox = lazy(() => import("./Alertbox"))
 const LikeRanking = lazy(() => import("./LikeRanking"))
 const WheelOfFortune = lazy(() => import("./WheelOfFortune"))
 
+const pathname = window.location.pathname
+
+const UpgradeRequestMessage = () => {
+  return <h6>Bigtik pro request</h6>
+}
+
 export default function Widget() {
-  const pathname = window.location.pathname
   const [loadingTitle, setLoadingTitle] = useState("Đang chuẩn bị")
   const [loadingText, setLoadingText] = useState("Kết nối máy chủ")
   const [settings, updateSettings] = useState(defaultSettings())
+  const [isProChannel, setProChannel] = useState(false)
   const [event, setEvent] = useState({})
 
   const likeStorage = useRef({})
@@ -71,6 +77,7 @@ export default function Widget() {
       // SETTING UPDATE EVENT
       socket.on("updateSetting", (newSetting) => {
         console.log("updateSetting", newSetting)
+        setProChannel(newSetting.basic_proexpirationdate > new Date().getTime())
         updateSettings(newSetting)
       })
     })
@@ -96,12 +103,8 @@ export default function Widget() {
         setLoadingText(`${error}`)
       }
     }
-    // clearTimeout(window.startUp)
-    // window.startUp = setTimeout(getStart, 1000)
-    return () => {
-      // clearTimeout(window.startUp)
-      getStart()
-    }
+    window.start = setTimeout(getStart, 200)
+    return () => window.clearTimeout(window.start)
   }, [])
 
   return (
@@ -119,16 +122,26 @@ export default function Widget() {
                 <Alertbox event={event} settings={settings} />
               </Suspense>
             )}
-            {pathname === "/widget/likeranking" && (
-              <Suspense fallback={<div>Loading</div>}>
-                <LikeRanking event={event} settings={settings} />
-              </Suspense>
-            )}
-            {pathname === "/widget/wheeloffortune" && (
-              <Suspense fallback={<div>Loading</div>}>
-                <WheelOfFortune event={event} settings={settings} />
-              </Suspense>
-            )}
+            {pathname === "/widget/likeranking" &&
+              (isProChannel ? (
+                <Suspense fallback={<div>Loading</div>}>
+                  <LikeRanking event={event} settings={settings} />
+                </Suspense>
+              ) : (
+                <UpgradeRequestMessage />
+              ))}
+            {pathname === "/widget/wheeloffortune" &&
+              (isProChannel ? (
+                <Suspense fallback={<div>Loading</div>}>
+                  <WheelOfFortune
+                    event={event}
+                    settings={settings}
+                    isProChannel={isProChannel}
+                  />
+                </Suspense>
+              ) : (
+                <UpgradeRequestMessage />
+              ))}
           </>
         )}
       </div>

@@ -125,16 +125,15 @@ function AlertboxOpts(props) {
 
   return (
     <div className=" ">
-      <MDBTabs fill className="mb-3" color="info">
+      <MDBTabs fill className="mb-3">
         {["general", "like", "share", "follow", "gift"].map((type, index) => (
-          <MDBTabsItem key={index} className="flex-nowrap">
+          <MDBTabsItem key={index} className=" ">
             <MDBTabsLink
               onClick={() => handleTabChange(`tab-${type}`)}
               active={tabActive === `tab-${type}`}
-              color="dark"
+              // color="light"
               className={
-                "mb-1 text-nowrap text-light " +
-                (tabActive !== `tab-${type}` && " border-bottom border-muted")
+                "mb-1 px-0 text-nowrap " + (tabActive !== `tab-${type}` && "  ")
               }
             >
               {type
@@ -153,9 +152,7 @@ function AlertboxOpts(props) {
           <form name="general">
             <div className="row mb-3">
               <div className="col-4">
-                <label className="text-light form-label mb-0">
-                  Độ chễ thông báo
-                </label>
+                <label className=" form-label mb-0">Độ chễ thông báo</label>
               </div>
               <div className="col-8">
                 <div className="range">
@@ -174,9 +171,7 @@ function AlertboxOpts(props) {
             </div>
             <div className="row mb-3">
               <div className="col-4">
-                <label className="text-light form-label mb-0">
-                  Thông báo liên tục
-                </label>
+                <label className=" form-label mb-0">Thông báo liên tục</label>
               </div>
               <div className="col-8">
                 <div className="form-check d-inline-block">
@@ -190,7 +185,7 @@ function AlertboxOpts(props) {
                       settings.widget_alertbox_general_alertparries
                     }
                   />
-                  <label className="text-light form-check-label">Bật</label>
+                  <label className=" form-check-label">Bật</label>
                 </div>
                 <div className="form-check d-inline-block ms-3">
                   <input
@@ -203,14 +198,14 @@ function AlertboxOpts(props) {
                       !settings.widget_alertbox_general_alertparries
                     }
                   />
-                  <label className="text-light form-check-label">Tắt</label>
+                  <label className=" form-check-label">Tắt</label>
                 </div>
               </div>
             </div>
             {settings.widget_alertbox_general_alertparries && (
               <div className="row mb-3 parry_alert_delay d-flex">
                 <div className="col-4">
-                  <label className="text-light form-label mb-0">
+                  <label className=" form-label mb-0">
                     Thời lượng thông báo
                   </label>
                 </div>
@@ -234,7 +229,7 @@ function AlertboxOpts(props) {
             )}
             {/* <div className="row mt-5 mb-3 parry_alert_delay d-flex">
               <div className="col-4">
-                <label className="text-light form-label mb-0">Đặt lại mặc định:</label>
+                <label className=" form-label mb-0">Đặt lại mặc định:</label>
               </div>
               <div className="col-8">
                 <div className="range">
@@ -256,9 +251,7 @@ function AlertboxOpts(props) {
               <form name={type}>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
-                      Kích hoạt
-                    </label>
+                    <label className=" form-label mb-0">Kích hoạt</label>
                   </div>
                   <div className="col-8">
                     <div className="form-check form-check-inline">
@@ -270,7 +263,7 @@ function AlertboxOpts(props) {
                         type="radio"
                         defaultChecked={sValue("active")}
                       />
-                      <label className="text-light form-check-label">Bật</label>
+                      <label className=" form-check-label">Bật</label>
                     </div>
                     <div className="form-check form-check-inline">
                       <input
@@ -281,13 +274,13 @@ function AlertboxOpts(props) {
                         type="radio"
                         defaultChecked={!sValue("active")}
                       />
-                      <label className="text-light form-check-label">Tắt</label>
+                      <label className=" form-check-label">Tắt</label>
                     </div>
                   </div>
                 </div>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">Bố cục</label>
+                    <label className=" form-label mb-0">Bố cục</label>
                   </div>
                   <div className="col-8">
                     <div className="form-check form-check-inline">
@@ -299,9 +292,7 @@ function AlertboxOpts(props) {
                         type="radio"
                         defaultChecked={sValue("layout") === "above"}
                       />
-                      <label className="text-light form-check-label">
-                        Trên dưới
-                      </label>
+                      <label className=" form-check-label">Trên dưới</label>
                     </div>
                     <div className="form-check form-check-inline">
                       <input
@@ -312,9 +303,7 @@ function AlertboxOpts(props) {
                         type="radio"
                         defaultChecked={sValue("layout") === "banner"}
                       />
-                      <label className="text-light form-check-label">
-                        Trung tâm
-                      </label>
+                      <label className=" form-check-label">Trung tâm</label>
                     </div>
                     <div className="form-check form-check-inline">
                       <input
@@ -325,17 +314,13 @@ function AlertboxOpts(props) {
                         type="radio"
                         defaultChecked={sValue("layout") === "side"}
                       />
-                      <label className="text-light form-check-label">
-                        Hai bên
-                      </label>
+                      <label className=" form-check-label">Hai bên</label>
                     </div>
                   </div>
                 </div>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
-                      Hiệu ứng
-                    </label>
+                    <label className=" form-label mb-0">Hiệu ứng</label>
                   </div>
                   <div className="col-8 d-flex">
                     <select
@@ -377,9 +362,7 @@ function AlertboxOpts(props) {
                 {type === "gift" && (
                   <div className="row mb-3">
                     <div className="col-4">
-                      <label className="text-light form-label mb-0">
-                        Min. donate
-                      </label>
+                      <label className=" form-label mb-0">Min. donate</label>
                     </div>
                     <div className="col-8">
                       <div className="input-group w-50">
@@ -398,9 +381,7 @@ function AlertboxOpts(props) {
                 )}
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
-                      Mẫu lời nhắn
-                    </label>
+                    <label className=" form-label mb-0">Mẫu lời nhắn</label>
                   </div>
                   <div className="col-8">
                     <div className="input-group">
@@ -413,16 +394,14 @@ function AlertboxOpts(props) {
                         placeholder={textPlaceholder[type]}
                       />
                     </div>
-                    <small style={{ opacity: "30%" }}>
+                    <small className="text-muted">
                       Từ khoá: {keysCommand[type]}
                     </small>
                   </div>
                 </div>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
-                      Hiệu ứng chữ
-                    </label>
+                    <label className=" form-label mb-0">Hiệu ứng chữ</label>
                   </div>
                   <div className="col-8 d-sm-flex align-items-center text-end">
                     <select
@@ -496,9 +475,7 @@ function AlertboxOpts(props) {
                 </div>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
-                      Hình ảnh
-                    </label>
+                    <label className="form-label mb-0">Hình ảnh</label>
                   </div>
                   <div className="col-8">
                     <div className="input-group">
@@ -532,13 +509,11 @@ function AlertboxOpts(props) {
                 </div>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
-                      Âm thanh
-                    </label>
+                    <label className=" form-label mb-0">Âm thanh</label>
                   </div>
                   <div className="col-8">
                     <div className="input-group">
-                      <span className="input-group-text text-light p-0">
+                      <span className="input-group-text p-0">
                         <div
                           className="d-flex justify-content-center align-items-center"
                           style={{ width: "3rem", height: "100%" }}
@@ -571,9 +546,7 @@ function AlertboxOpts(props) {
                 </div>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
-                      Âm lượng
-                    </label>
+                    <label className=" form-label mb-0">Âm lượng</label>
                   </div>
                   <div className="col-8">
                     <div className="range">
@@ -594,9 +567,7 @@ function AlertboxOpts(props) {
                 </div>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
-                      Thời lượng
-                    </label>
+                    <label className=" form-label mb-0">Thời lượng</label>
                   </div>
                   <div className="col-8">
                     <div className="range">
@@ -617,7 +588,7 @@ function AlertboxOpts(props) {
                 </div>
                 <div className="row mb-3">
                   <div className="col-4">
-                    <label className="text-light form-label mb-0">
+                    <label className=" form-label mb-0">
                       Độ chễ hiển thị chữ
                     </label>
                   </div>
@@ -638,7 +609,7 @@ function AlertboxOpts(props) {
                     </div>
                   </div>
                 </div>
-                <div className="card card-body p-3 bg-dark border border-muted">
+                <div className="card card-body p-3 border shadow-0">
                   <a
                     className="text-info"
                     onClick={toggleShow}
@@ -651,9 +622,7 @@ function AlertboxOpts(props) {
                     <p></p>
                     <div className="row mb-3">
                       <div className="col-4">
-                        <label className="text-light form-label mb-0">
-                          Cỡ chữ
-                        </label>
+                        <label className=" form-label mb-0">Cỡ chữ</label>
                       </div>
                       <div className="col-8">
                         <div className="range">
@@ -674,7 +643,7 @@ function AlertboxOpts(props) {
                     </div>
                     <div className="row mb-3">
                       <div className="col-4">
-                        <label className="text-light form-label mb-0">
+                        <label className=" form-label mb-0">
                           Độ đậm phông chữ
                         </label>
                       </div>
@@ -697,9 +666,7 @@ function AlertboxOpts(props) {
                     </div>
                     <div className="row mb-3">
                       <div className="col-4">
-                        <label className="text-light form-label mb-0">
-                          Màu chữ
-                        </label>
+                        <label className=" form-label mb-0">Màu chữ</label>
                       </div>
                       <div className="col-8">
                         <MDBInputGroup
@@ -710,7 +677,7 @@ function AlertboxOpts(props) {
                               defaultValue={sValue("textcolor")}
                               onChange={handleChange}
                               type="color"
-                              className="form-control form-control-color bg-dark border-0"
+                              className="form-control form-control-color border-0 px-0"
                             />
                           }
                           className="mb-3"
@@ -726,7 +693,7 @@ function AlertboxOpts(props) {
                     </div>
                     <div className="row mb-3">
                       <div className="col-4">
-                        <label className="text-light form-label mb-0">
+                        <label className=" form-label mb-0">
                           Màu chữ nổi bật
                         </label>
                       </div>
@@ -739,7 +706,7 @@ function AlertboxOpts(props) {
                               defaultValue={sValue("texthighlightcolor")}
                               onInput={handleChange}
                               type="color"
-                              className="form-control form-control-color bg-dark border-0"
+                              className="form-control form-control-color border-0 px-0"
                             />
                           }
                           className="mb-3"

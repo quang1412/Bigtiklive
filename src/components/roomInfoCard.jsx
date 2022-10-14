@@ -27,8 +27,8 @@ const RoomInfoCard = ({ info, className }) => {
       <MDBDropdownToggle
         tag="section"
         color="light"
-        className="p-1 rounded-5 d-flex align-items-center"
-        style={{ backgroundColor: "var(--mdb-gray-800)" }}
+        className="no-arrow p-1 rounded-5 d-flex align-items-center shadow"
+        style={{ backgroundColor: "white" }}
         role="button"
       >
         <img
@@ -49,7 +49,7 @@ const RoomInfoCard = ({ info, className }) => {
           </small>
         </small>
       </MDBDropdownToggle>
-      <MDBDropdownMenu dark>
+      <MDBDropdownMenu light>
         <MDBDropdownItem className="p-1" />
         <MDBDropdownItem
           link

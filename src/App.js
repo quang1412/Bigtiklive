@@ -70,6 +70,7 @@ function channelDuplicateCheck(cid) {
 }
 
 function App() {
+  const isProChannel = useRef(false)
   const authDataRef = useRef(null)
   const [_loadingTitle, setLoadingTitle] = useState("Đang chuẩn bị")
   const [_loadingText, setLoadingText] = useState("...")
@@ -88,6 +89,7 @@ function App() {
     }
   })
   const [roomList, setRoomList] = useState([])
+  const popupWindows = useRef([])
 
   const likeStorage = useRef({})
   const likeDelay = (event) => {
@@ -237,6 +239,9 @@ function App() {
   }, [userData]) // Lưu userData vào localStorage
 
   useEffect(() => {
+    // window.popups.map((popup) =>
+    //   popup.postMessage(_lastEvent, "https://bigtik-shotting-game.glitch.me/")
+    // )
     const cid = window.cid
     if (!cid) return
 
@@ -370,8 +375,6 @@ function App() {
             const cid = authData.uid
             window.cid = cid
 
-            await window.wait(1.5)
-            setLoadingText("Kiểm tra trùng lặp admin")
             await channelDuplicateCheck(cid)
 
             await window.wait(1.5)
@@ -382,7 +385,9 @@ function App() {
             setLoadingText("Tải thông tin tài khoản")
             const settings = await getChannelSettings(cid)
             updateSettings(settings)
-            console.log("Channel Settings:", settings)
+            // console.log("Channel Settings:", settings)
+            isProChannel.current =
+              settings.basic_proexpirationdate > new Date().getTime()
             setTtRoomInfo({
               roomInfo: {
                 owner: {
@@ -416,7 +421,11 @@ function App() {
     <StartScreen title={_loadingTitle} text={_loadingText} />
   ) : (
     <div className="App">
-      <Navbar roomInfo={_ttRoomInfo} pageName={_urlHash} />
+      <Navbar
+        roomInfo={_ttRoomInfo}
+        pageName={_urlHash}
+        isProChannel={isProChannel.current}
+      />
       <MDBContainer className="p-3 text-start" style={{ marginTop: "70px" }}>
         {_urlHash === "setup" ? (
           <Suspense fallback={<div>Loading</div>}>
@@ -456,7 +465,7 @@ function App() {
         )}
         {/* <EventLog event={_lastEvent} /> */}
         <ToastContainer
-          theme="dark"
+          theme="light"
           position="bottom-right"
           toastStyle={{
             fontSize: "14px",
